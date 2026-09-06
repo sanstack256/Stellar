@@ -1766,6 +1766,7 @@
               <h2 class="report-commit-title" id="commitSubject">Commit Title</h2>
               <p class="report-what-changed" id="whatChangedText">Description</p>
               <div class="report-intent-box" id="intentBox" style="display:none;"></div>
+              <div class="report-intent-box" id="graphEvidenceBox" style="display:none;"></div>
               <div class="action-row">
                 <button class="btn btn-ghost" onclick="copyMarkdownSummary()">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
@@ -2128,6 +2129,7 @@ function copyMarkdownSummary() {
   const md = [
     `### 🌟 Stellar Impact & Risk Report (${sha})`,
     `**Risk Score:** ${risk.risk_score || 0}/100 (${risk.risk_band || 'UNKNOWN'})`,
+    `**Graph evidence:** ${(d.graph_evidence_quality || {}).state || 'unknown'}${(d.graph_evidence_quality || {}).verification_required ? ' — source/test verification required' : ''}`,
     `**Summary:** ${report.what_changed || 'Code change'}`,
     '',
     `#### 🎯 Blast Radius (${(d.affected_entities || []).length} affected entities):`,
@@ -2175,6 +2177,17 @@ function renderReport(data) {
   if (subjectEl) subjectEl.textContent = commit.subject || 'Code Change Analysis';
   const descEl = $('whatChangedText');
   if (descEl) descEl.textContent = report.what_changed || (data.changed_files ? `Files changed: ${data.changed_files.join(', ')}` : 'No file changes detected.');
+
+  const graphQuality = data.graph_evidence_quality || ((data.evidence || {}).graph_quality) || {};
+  const graphEvidenceBox = $('graphEvidenceBox');
+  if (graphEvidenceBox) {
+    if (graphQuality.verification_required) {
+      graphEvidenceBox.style.display = 'block';
+      graphEvidenceBox.innerHTML = `<b>Graph evidence is ${esc(graphQuality.state || 'partial')}:</b> reported relationships are incomplete or heuristic, not confirmed structural evidence. ${esc(graphQuality.verification_path || 'Inspect source and run relevant tests before relying on them.')}`;
+    } else {
+      graphEvidenceBox.style.display = 'none';
+    }
+  }
 
   const intentBox = $('intentBox');
   if (intentBox) {
@@ -2267,13 +2280,13 @@ function renderReport(data) {
       ${i > 0 ? '<div class="node-arrow">↳</div>' : ''}
       <div class="node-box ${n.isRoot ? 'root-node' : ''}" onclick="copyText('${esc(n.name)}', this)" title="Click to copy full symbol path: ${esc(n.name)}">
         <div>
-          <div class="node-type">${n.isRoot ? 'ROOT CHANGED ENTITY' : `DEPTH ${n.depth || 1} CALLER`}</div>
+          <div class="node-type">${n.isRoot ? 'ROOT CHANGED ENTITY' : graphQuality.verification_required ? `UNVERIFIED DEPTH ${n.depth || 1} CALLER` : `DEPTH ${n.depth || 1} CALLER`}</div>
           <div class="node-symbol">${esc(short(n.name))}</div>
         </div>
         <span class="node-depth-pill">${n.isRoot ? 'MODIFIED' : `DEPTH ${n.depth || 1}`}</span>
       </div>
     </div>
-  `).join('') : '<div style="color:var(--text-dim);font-size:12px;padding:8px 0;">No downstream callers affected.</div>';
+  `).join('') : `<div style="color:var(--text-dim);font-size:12px;padding:8px 0;">${graphQuality.verification_required ? 'No callers were reported by partial graph analysis; inspect source and run relevant tests.' : 'No downstream callers affected.'}</div>`;
 
   if ($('graphFlow')) $('graphFlow').innerHTML = graphFlowHtml;
   if ($('blastGraphMeta')) $('blastGraphMeta').textContent = `${affected.length} ENTITIES AFFECTED`;

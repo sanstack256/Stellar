@@ -9,7 +9,7 @@ from engine.test_inventory import inventory, rank
 from risk_engine.scorer import score_change
 from llm_agent.agent import analyze as llm_analyze
 from integrations.databricks import enabled as databricks_enabled, DatabricksStore, AISearchStore
-from integrations.entire import semantic_diff
+from integrations.entire import semantic_diff, unavailable_graph_evidence
 
 logger = logging.getLogger("stellar")
 
@@ -92,7 +92,14 @@ def run_analysis(repo_path, repo_name, commit, db_path=None, semantic_base=None)
     historical = _search_history(history_query, repo_name, result["historical_checkpoints"])
     missed = _missed(result["all_affected"], covered, historical)
     
-    risk = score_change(result["changed_entities"], result["all_affected"], covered, historical, result["checkpoint"], result.get("graph_evidence"))
+    graph_quality = result.get("graph_evidence_quality", {"state": "partial", "verification_required": True})
+    risk = score_change(result["changed_entities"], result["all_affected"], covered, historical, result["checkpoint"], result.get("graph_evidence"), graph_quality)
+    semantic = None
+    if semantic_base:
+        try:
+            semantic = semantic_diff(repo_path, semantic_base, commit)
+        except Exception as exc:
+            semantic = {"error": str(exc), "base": semantic_base, "head": commit, "evidence_quality": unavailable_graph_evidence(exc), "dependent_count_evidence": "unavailable"}
     
     context = {
         "repo": repo_name,
@@ -105,10 +112,14 @@ def run_analysis(repo_path, repo_name, commit, db_path=None, semantic_base=None)
         "risk": risk,
         "recommended_tests": recommendations,
         "candidate_missed_risks": missed,
-        "evidence": {"graph": result["graph_evidence"]}
+        "evidence": {"graph": result["graph_evidence"], "graph_quality": graph_quality},
+        "graph_evidence_quality": graph_quality,
     }
+    if semantic is not None:
+        context["semantic_diff"] = semantic
     
     report = _trace_analysis(context)
+    report["graph_evidence_quality"] = graph_quality
     run_id = str(uuid.uuid4())
     final = {
         **context,
@@ -117,12 +128,6 @@ def run_analysis(repo_path, repo_name, commit, db_path=None, semantic_base=None)
         "run_id": run_id
     }
     
-    if semantic_base:
-        try:
-            final["semantic_diff"] = semantic_diff(repo_path, semantic_base, commit)
-        except Exception as exc:
-            final["semantic_diff"] = {"error": str(exc), "base": semantic_base, "head": commit}
-            
     if databricks_enabled():
         try:
             DatabricksStore().write(result, risk, tests=tests, recommended_tests=recommendations, missed=missed, run_id=run_id, llm_engine=report.get("engine", "unknown"))
