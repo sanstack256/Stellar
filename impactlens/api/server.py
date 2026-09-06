@@ -18,7 +18,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request, Header
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, field_validator
 
@@ -173,4 +173,17 @@ def integration_health():
 
 dashboard_dir = BASE_DIR / "dashboard"
 if dashboard_dir.exists():
+    @app.get("/signin", response_class=FileResponse)
+    @app.get("/sign-in", response_class=FileResponse)
+    @app.get("/login", response_class=FileResponse)
+    def signin_page():
+        return FileResponse(str(dashboard_dir / "signin.html"))
+
+    @app.get("/signup", response_class=FileResponse)
+    @app.get("/sign-up", response_class=FileResponse)
+    @app.get("/register", response_class=FileResponse)
+    def signup_page():
+        return FileResponse(str(dashboard_dir / "signup.html"))
+
     app.mount("/", StaticFiles(directory=str(dashboard_dir), html=True), name="dashboard")
+
