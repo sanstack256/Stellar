@@ -1,29 +1,12 @@
-<<<<<<< HEAD
 """
-FastAPI app implementing the request flow from the plan:
+FastAPI app for Stellar - AI Codebase Impact & Risk Engine
 
-  GitHub webhook -> POST /analyze/{commit} -> Impact Report JSON
+Request flow:
+  GitHub webhook / UI -> POST /analyze/{commit} -> Impact Report JSON
 
 Run:
     uvicorn api.server:app --reload --port 8000
-
-Then call POST /analyze/<commit> with a configured repository path and name.
-
-The dashboard (dashboard/index.html) fetches this same endpoint.
-
-Hardening notes (see README "Production readiness" section for the full list):
-  - `repo_path` is resolved and confined to BASE_DIR -- a client cannot point
-    the analyzer at an arbitrary filesystem path (path traversal).
-  - `commit` is validated against a safe git-ref pattern before it ever
-    reaches a subprocess, so it can't be smuggled in as a `git` CLI flag
-    (e.g. a commit value of "--upload-pack=...").
-  - Known user-facing failures (bad repo, bad commit, git errors) return
-    4xx with a clear message; unexpected failures return a generic 500
-    without leaking internals, and are logged server-side with a request id.
 """
-
-=======
->>>>>>> 0835bb57aebcab1729d4860c16fead27214b5ccd
 from __future__ import annotations
 import logging
 import os
@@ -48,24 +31,13 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name
 logger = logging.getLogger("stellar")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-<<<<<<< HEAD
-=======
-DB_PATH = str(BASE_DIR / "data" / "stellar.db")
->>>>>>> 0835bb57aebcab1729d4860c16fead27214b5ccd
 
 _SAFE_REF_RE = re.compile(r"^(?!-)[A-Za-z0-9._/\-]{1,200}$")
 
 app = FastAPI(title="Stellar", description="AI Codebase Impact & Risk Engine")
 
-<<<<<<< HEAD
-_cors = [x.strip() for x in (os.getenv("CORS_ORIGINS", "")).split(",") if x.strip()]
-
-if _cors:
-    app.add_middleware(CORSMiddleware, allow_origins=_cors, allow_methods=["GET","POST"], allow_headers=["*"], allow_credentials=False)
-=======
 _cors = [x.strip() for x in (os.getenv("CORS_ORIGINS", "*")).split(",") if x.strip()]
 app.add_middleware(CORSMiddleware, allow_origins=_cors, allow_methods=["GET", "POST"], allow_headers=["*"], allow_credentials=False)
->>>>>>> 0835bb57aebcab1729d4860c16fead27214b5ccd
 
 
 @app.middleware("http")
@@ -183,7 +155,7 @@ def health():
 @app.get("/health/integrations")
 def integration_health():
     result = {"entire": {"required": True}, "databricks": {"enabled": databricks_enabled()}}
-    configured = os.getenv("IMPACTLENS_REPO_ROOT", "").strip()
+    configured = os.getenv("STELLAR_REPO_ROOT", os.getenv("IMPACTLENS_REPO_ROOT", "")).strip()
     if configured:
         try:
             result["entire"].update(verify_entire(configured))

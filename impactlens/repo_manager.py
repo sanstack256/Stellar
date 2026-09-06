@@ -8,7 +8,7 @@ _URL_RE=re.compile(r"^https://[^\s]+$",re.I)
 BASE_DIR = Path(__file__).resolve().parent
 
 def root() -> Path:
-    value = os.getenv("IMPACTLENS_REPO_ROOT", "").strip()
+    value = os.getenv("STELLAR_REPO_ROOT", os.getenv("IMPACTLENS_REPO_ROOT", "")).strip()
     if value:
         p = Path(value).expanduser().resolve()
     else:

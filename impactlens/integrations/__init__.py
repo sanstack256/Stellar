@@ -1,1 +1,1 @@
-"""External service adapters for ImpactLens."""
+"""External service adapters for Stellar."""

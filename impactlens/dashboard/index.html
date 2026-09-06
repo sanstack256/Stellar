@@ -1701,26 +1701,16 @@
         <div class="analyzer-form">
           <div class="form-inputs">
             <div class="input-group">
-<<<<<<< HEAD
-              <label class="input-label">Repository Directory</label>
-              <input class="input-field" id="repoPath" value="" placeholder="path relative to IMPACTLENS_REPO_ROOT" onchange="cachedCommits=null; lastFetchedRepo=null; getCommits();">
-=======
               <label class="input-label" for="repoPath">Repository Directory</label>
-              <input class="input-field" id="repoPath" value="sample_repo" placeholder="sample_repo" onchange="cachedCommits=null; lastFetchedRepo=null; getCommits();">
->>>>>>> 0835bb57aebcab1729d4860c16fead27214b5ccd
+              <input class="input-field" id="repoPath" value="sample_repo" placeholder="sample_repo or relative path" onchange="cachedCommits=null; lastFetchedRepo=null; getCommits();">
             </div>
             <div class="input-group">
               <label class="input-label" for="repoUrl">GitHub URL (Optional)</label>
               <input class="input-field" id="repoUrl" placeholder="https://github.com/org/repo.git">
             </div>
             <div class="input-group">
-<<<<<<< HEAD
-              <label class="input-label">Commit SHA / Ref (or select from list)</label>
-              <input class="input-field" id="commitSha" list="commitDatalist" value="" placeholder="SHA, ref, or pick below">
-=======
               <label class="input-label" for="commitSha">Commit SHA / Ref</label>
               <input class="input-field" id="commitSha" list="commitDatalist" value="HEAD" placeholder="HEAD, SHA, or pick below">
->>>>>>> 0835bb57aebcab1729d4860c16fead27214b5ccd
               <datalist id="commitDatalist"></datalist>
             </div>
             <button class="btn btn-primary" id="runBtn" onclick="runAnalysis()">
@@ -1729,8 +1719,6 @@
           </div>
 
           <div class="form-toolbar">
-<<<<<<< HEAD
-=======
             <div class="preset-chips">
               <span class="preset-chips-label">DEMO SCENARIOS:</span>
               <button class="preset-chip chip-low" id="presetLow" onclick="runPreset('Add order receipt')">
@@ -2025,8 +2013,6 @@ async function loadCommitsIntoPicker() {
   }
 }
 
-<<<<<<< HEAD
-=======
 function highlightActivePreset(match) {
   ['presetLow', 'presetMed', 'presetHigh'].forEach(id => {
     const el = $(id);

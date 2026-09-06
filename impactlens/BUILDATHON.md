@@ -1,4 +1,4 @@
-# ImpactLens
+# Stellar
 
 ## One-sentence summary
 Graph-verified change-impact analysis that combines Entire structural evidence and checkpoint intent with Databricks retrieval and AI reasoning.

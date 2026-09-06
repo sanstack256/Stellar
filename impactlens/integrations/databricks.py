@@ -1,4 +1,4 @@
-"""Databricks data plane for ImpactLens.
+"""Databricks data plane for Stellar.
 
 All workspace-specific identifiers come from environment configuration. The
 application writes raw evidence, normalized graph/checkpoint/test data and
