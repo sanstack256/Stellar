@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-"""Run the full ImpactLens pipeline against the sample repo's latest commit."""
+from __future__ import annotations
 import json
 import subprocess
 import sys
@@ -8,11 +7,11 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(BASE_DIR))
 
-from api.orchestrator import run_analysis  # noqa: E402
+from api.orchestrator import run_analysis
 
 REPO_PATH = str(BASE_DIR / "sample_repo")
 REPO_NAME = "ecommerce-demo"
-DB_PATH = str(BASE_DIR / "data" / "impactlens.db")
+DB_PATH = str(BASE_DIR / "data" / "stellar.db")
 
 
 def main():
@@ -25,6 +24,7 @@ def main():
     report = run_analysis(REPO_PATH, REPO_NAME, sha, DB_PATH)
 
     out_path = BASE_DIR / "data" / f"report_{sha[:8]}.json"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(report, indent=2, default=str))
 
     print(json.dumps(report, indent=2, default=str))

@@ -1,12 +1,10 @@
-"""Extracts changed files + changed line ranges from a git commit."""
-
 from __future__ import annotations
 import subprocess
 import re
 
 
 class GitError(Exception):
-    """Raised for user-actionable git failures (bad ref, not a repo, etc.)."""
+    pass
 
 
 def _run(repo_path: str, *args) -> str:
@@ -52,10 +50,6 @@ _HUNK_RE = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@")
 
 
 def get_changed_line_ranges(repo_path: str, commit: str) -> dict[str, list[tuple[int, int]]]:
-    """
-    Returns {file_path: [(start_line, end_line), ...]} for lines touched
-    in the *new* version of each file at this commit (added/modified lines).
-    """
     diff = _run(repo_path, "show", "--unified=0", commit)
     ranges: dict[str, list[tuple[int, int]]] = {}
     current_file = None

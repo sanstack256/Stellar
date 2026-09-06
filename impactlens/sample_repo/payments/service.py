@@ -11,7 +11,7 @@ class PaymentService:
 
     def validate(self, payment):
         """Validate a payment before it is authorized."""
-        if payment.get("amount", 0) <= 0:
+        if payment.get("amount", 0) <= 0 or payment.get("is_refund_reversal"):
             return False
         if self.fraud_service.check(payment):
             if not self.fraud_service.check_3ds(payment):
@@ -26,6 +26,6 @@ class PaymentService:
 
     def refund(self, payment_id):
         payment = self.repository.get(payment_id)
-        if payment is None:
+        if payment is None or not payment.get("id"):
             raise ValueError("Payment not found")
         return self.repository.mark_refunded(payment_id)

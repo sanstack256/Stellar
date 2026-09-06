@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 """
 FastAPI app implementing the request flow from the plan:
 
@@ -21,10 +22,13 @@ Hardening notes (see README "Production readiness" section for the full list):
     without leaking internals, and are logged server-side with a request id.
 """
 
+=======
+>>>>>>> 0835bb57aebcab1729d4860c16fead27214b5ccd
 from __future__ import annotations
-import logging, subprocess
+import logging
 import os
 import re
+import subprocess
 import time
 import uuid
 from pathlib import Path
@@ -41,20 +45,27 @@ from integrations.entire import verify as verify_entire
 from integrations.databricks import enabled as databricks_enabled
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
-logger = logging.getLogger("impactlens")
+logger = logging.getLogger("stellar")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+<<<<<<< HEAD
+=======
+DB_PATH = str(BASE_DIR / "data" / "stellar.db")
+>>>>>>> 0835bb57aebcab1729d4860c16fead27214b5ccd
 
-# Git refs/SHAs: letters, digits, dot, underscore, slash, hyphen -- but must
-# NOT start with '-' (that's how you'd smuggle a CLI flag into `git show <commit>`).
 _SAFE_REF_RE = re.compile(r"^(?!-)[A-Za-z0-9._/\-]{1,200}$")
 
-app = FastAPI(title="ImpactLens", description="AI Codebase Impact Engine")
+app = FastAPI(title="Stellar", description="AI Codebase Impact & Risk Engine")
 
+<<<<<<< HEAD
 _cors = [x.strip() for x in (os.getenv("CORS_ORIGINS", "")).split(",") if x.strip()]
 
 if _cors:
     app.add_middleware(CORSMiddleware, allow_origins=_cors, allow_methods=["GET","POST"], allow_headers=["*"], allow_credentials=False)
+=======
+_cors = [x.strip() for x in (os.getenv("CORS_ORIGINS", "*")).split(",") if x.strip()]
+app.add_middleware(CORSMiddleware, allow_origins=_cors, allow_methods=["GET", "POST"], allow_headers=["*"], allow_credentials=False)
+>>>>>>> 0835bb57aebcab1729d4860c16fead27214b5ccd
 
 
 @app.middleware("http")
@@ -89,20 +100,14 @@ class AnalyzeRequest(BaseModel):
 
 
 def _resolve_repo_path(repo_path: str) -> Path:
-    """Resolve a repository from the configured workspace roots.
-
-    Local development can point IMPACTLENS_REPO_ROOT at a directory containing
-    real repositories. Deployed instances keep the default sandbox rooted at
-    the application directory.
-    """
-    configured = os.getenv("IMPACTLENS_REPO_ROOT", "").strip()
+    configured = os.getenv("STELLAR_REPO_ROOT", os.getenv("IMPACTLENS_REPO_ROOT", "")).strip()
     root = Path(configured).expanduser().resolve() if configured else BASE_DIR.resolve()
     raw = Path(repo_path).expanduser()
     candidate = (raw if raw.is_absolute() else root / raw).resolve()
     try:
         candidate.relative_to(root)
     except ValueError:
-        raise HTTPException(400, "repo_path must stay within IMPACTLENS_REPO_ROOT")
+        raise HTTPException(400, "repo_path must stay within repository root")
     return candidate
 
 
@@ -131,7 +136,7 @@ def repositories():
 
 @app.post("/analyze/{commit}")
 def analyze(commit: str, body: AnalyzeRequest, x_api_key: str | None = Header(default=None)):
-    required_key = os.getenv("IMPACTLENS_API_KEY")
+    required_key = os.getenv("STELLAR_API_KEY", os.getenv("IMPACTLENS_API_KEY"))
     if required_key and x_api_key != required_key:
         raise HTTPException(401, "invalid API key")
     if not _SAFE_REF_RE.match(commit):
@@ -146,7 +151,6 @@ def analyze(commit: str, body: AnalyzeRequest, x_api_key: str | None = Header(de
     try:
         report = run_analysis(str(repo_path), body.repo_name, commit, semantic_base=body.semantic_base)
     except AnalysisError as exc:
-        # Known, user-actionable failure (bad commit, empty diff, etc.)
         raise HTTPException(400, str(exc))
     return report
 
@@ -156,7 +160,6 @@ def list_commits(repo_path: str, limit: int = 20):
     path = _resolve_repo_path(repo_path)
     if not path.exists() or not (path / ".git").exists():
         raise HTTPException(404, f"not a git repo: {repo_path}")
-    import subprocess
     try:
         out = subprocess.run(
             ["git", "-C", str(path), "log", f"-{max(1, min(limit, 100))}", "--pretty=%H|%s"],
@@ -196,7 +199,6 @@ def integration_health():
     return result
 
 
-# Serve the dashboard static files at /
 dashboard_dir = BASE_DIR / "dashboard"
 if dashboard_dir.exists():
     app.mount("/", StaticFiles(directory=str(dashboard_dir), html=True), name="dashboard")

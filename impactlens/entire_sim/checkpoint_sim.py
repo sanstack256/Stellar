@@ -1,17 +1,3 @@
-"""
-entire_sim.checkpoint_sim
---------------------------
-Stand-in for Entire Checkpoints. Real Checkpoints link a commit to the
-agent session / prompt / reasoning that produced it. Here we recover the
-same shape from git commit trailers (`Checkpoint-session:` / `Prompt:`
-lines in the commit body) plus the free-text commit message, and merge in
-a small seed file of historical checkpoints for past incidents so the
-AI Search / retrieval layer has something meaningful to find.
-
-Swap `load_checkpoint_for_commit` for a real `entire checkpoint show <sha>`
-call when the Entire CLI is available.
-"""
-
 from __future__ import annotations
 import json
 import re
@@ -49,13 +35,6 @@ def load_checkpoint_for_commit(repo_path: str, commit: str) -> dict:
 
 
 def load_historical_checkpoints(seed_path: str | None = None) -> list[dict]:
-    """
-    Historical checkpoints from *other* past changes (bug fixes, incidents)
-    that AI Search should be able to retrieve when reasoning about a new
-    change. In production this table is populated continuously as Entire
-    Checkpoints records every commit; for the demo we seed a few realistic
-    past incidents relevant to the payment-validation change.
-    """
     default = [
         {
             "commit_id": "hist_a1",

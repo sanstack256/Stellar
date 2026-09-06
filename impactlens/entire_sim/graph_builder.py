@@ -235,7 +235,7 @@ def build_graph(repo_path: str) -> RepoGraph:
             # Don't let one unparsable file (e.g. Python 2 syntax, a
             # generated file, a binary misnamed .py) kill the whole graph.
             import logging
-            logging.getLogger("impactlens").warning(f"skipping unparsable file {p}: {exc}")
+            logging.getLogger("stellar").warning(f"skipping unparsable file {p}: {exc}")
             continue
         trees[(module_name, str(p.relative_to(repo_path)))] = tree
         for node in ast.walk(tree):
