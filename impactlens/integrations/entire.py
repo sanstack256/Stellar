@@ -195,22 +195,70 @@ def checkpoint_for_commit(repo: str, commit: str) -> dict[str, Any]:
 
 
 def semantic_diff(repo: str, base: str, head: str) -> dict[str, Any]:
-    raw=_run(repo,["graph","diff","--repo",".","--base",base,"--head",head,"--json"])
-    parsed=_extract_json(raw)
-    partial_failures = parsed.get("warnings", []) if isinstance(parsed, dict) else []
+    raw = _run(
+        repo,
+        [
+            "graph",
+            "diff",
+            "--repo",
+            ".",
+            "--base",
+            base,
+            "--head",
+            head,
+            "--json",
+        ],
+    )
+    parsed = _extract_json(raw)
+
+    # Semantic diff output can omit repository-wide parse failures.
+    # Reuse the Graph snapshot quality contract so incomplete Graph
+    # analysis is never upgraded to confirmed evidence.
+    snapshot = graph_snapshot(repo)
+    graph_quality = snapshot.get("evidence_quality", {})
+
+    diff_warnings = (
+        parsed.get("warnings", [])
+        if isinstance(parsed, dict)
+        else []
+    )
+
+    partial_failures = list(
+        graph_quality.get("partial_failures", []) or []
+    )
+    for warning in diff_warnings:
+        if warning not in partial_failures:
+            partial_failures.append(warning)
+
+    state = (
+        "unavailable"
+        if graph_quality.get("state") == "unavailable"
+        else "partial"
+        if graph_quality.get("state") != "confirmed" or partial_failures
+        else "confirmed"
+    )
+
     quality = {
-        "state": "partial" if partial_failures else "confirmed",
+        "state": state,
         "source": "entire_graph_semantic_diff",
+        "completeness_level": graph_quality.get(
+            "completeness_level",
+            "unknown",
+        ),
         "partial_failures": partial_failures,
-        "verification_required": bool(partial_failures),
-        "verification_path": _VERIFICATION_PATH if partial_failures else "",
+        "verification_required": state != "confirmed",
+        "verification_path": (
+            _VERIFICATION_PATH if state != "confirmed" else ""
+        ),
     }
+
     return {
-        "base":base,
-        "head":head,
-        "raw":raw,
-        "parsed":parsed,
-        "evidence_quality":quality,
-        # Entire documents dependent counts as heuristic even when the diff itself resolves.
-        "dependent_count_evidence":"heuristic",
+        "base": base,
+        "head": head,
+        "raw": raw,
+        "parsed": parsed,
+        "evidence_quality": quality,
+        # Entire documents dependent counts as heuristic even when
+        # the diff itself resolves.
+        "dependent_count_evidence": "heuristic",
     }
