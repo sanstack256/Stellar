@@ -71,72 +71,121 @@
       </div>
 
       <div class="hero-graph-wrap" id="heroGraphWrap">
+        <div class="graph-top-chrome">
+          <div class="chrome-left">
+            <span class="chrome-title">INVESTIGATION GRAPH</span>
+            <span>/</span>
+            <span>payments/service.py</span>
+            <span>/</span>
+            <span style="color: var(--primary);">validate()</span>
+          </div>
+          <div class="chrome-right">
+            <div class="chrome-chip">
+              <span class="dot" style="width:6px; height:6px; border-radius:50%; background:var(--accent);"></span>
+              <span>LIVE AST PROPAGATION</span>
+            </div>
+          </div>
+        </div>
+
         <div class="hero-graph-canvas" id="heroCanvas">
-          <svg class="hero-graph-svg" id="heroSvg">
+          <svg class="hero-graph-svg" id="heroSvg" viewBox="0 0 1040 390">
             <defs>
-              <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <marker id="arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
                 <path d="M 0 1 L 10 5 L 0 9 z" fill="#344054"/>
               </marker>
-              <marker id="arrow-active" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <marker id="arrow-active" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
                 <path d="M 0 1 L 10 5 L 0 9 z" fill="#6366F1"/>
               </marker>
-              <marker id="arrow-impact" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                <path d="M 0 1 L 10 5 L 0 9 z" fill="#FBBF24"/>
+              <marker id="arrow-impact" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#F87171"/>
               </marker>
-              <marker id="arrow-test" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <marker id="arrow-test" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
                 <path d="M 0 1 L 10 5 L 0 9 z" fill="#34D399"/>
               </marker>
+              <marker id="arrow-evidence" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#22D3EE"/>
+              </marker>
             </defs>
-            <line x1="220" y1="90" x2="380" y2="170" class="graph-edge active" marker-end="url(#arrow-active)"/>
-            <line x1="480" y1="200" x2="620" y2="130" class="graph-edge risk" marker-end="url(#arrow-impact)"/>
-            <line x1="480" y1="210" x2="620" y2="280" class="graph-edge risk" marker-end="url(#arrow-impact)"/>
-            <line x1="720" y1="130" x2="880" y2="100" class="graph-edge" marker-end="url(#arrow)"/>
-            <line x1="740" y1="300" x2="880" y2="300" class="graph-edge active" marker-end="url(#arrow-test)"/>
-            <line x1="480" y1="230" x2="380" y2="340" class="graph-edge evidence"/>
-            <circle cx="380" cy="170" r="3" class="graph-signal-dot">
-              <animate attributeName="cx" values="220;380;480;620;740;880" dur="4s" repeatCount="indefinite"/>
-              <animate attributeName="cy" values="90;170;210;280;300;300" dur="4s" repeatCount="indefinite"/>
+
+            <path d="M 213 134 L 254 134" class="graph-edge active-origin" marker-end="url(#arrow-active)"/>
+            <path d="M 474 120 C 502 120, 508 77, 535 77" class="graph-edge" marker-end="url(#arrow)"/>
+            <path d="M 740 77 L 800 77" class="graph-edge" marker-end="url(#arrow)"/>
+            <path d="M 474 150 C 504 150, 508 234, 535 234" class="graph-edge active-danger" marker-end="url(#arrow-impact)"/>
+            <path d="M 755 234 L 800 234" class="graph-edge active-verify" marker-end="url(#arrow-test)"/>
+            <path d="M 364 172 L 364 256" class="graph-edge active-evidence" marker-end="url(#arrow-evidence)"/>
+
+            <circle r="3.5" class="graph-signal-dot">
+              <animateMotion dur="4.2s" repeatCount="indefinite" path="M 213 134 L 254 134 L 474 150 C 504 150, 508 234, 535 234 L 755 234 L 800 234"/>
             </circle>
           </svg>
 
-          <div class="graph-node node-changed node-s1" style="top:150px; left:320px;" onmouseenter="showTooltip('validate()', 'Modified function: checks 3DS authentication and amount rules.')">
-            <span class="node-tag">MODIFIED ENTITY</span>
-            <span class="node-name">validate(payment)</span>
-          </div>
-
-          <div class="graph-node node-impact node-s2" style="top:90px; left:600px;" onmouseenter="showTooltip('authorize()', 'Direct caller: executes authorization transactions via gateway.')">
-            <span class="node-tag">DIRECT CALLER</span>
-            <span class="node-name">authorize(payment)</span>
-          </div>
-
-          <div class="graph-node node-critical node-s2" style="top:250px; left:580px;" onmouseenter="showTooltip('process_refund()', 'Critical caller: relies on validate() reject logic during reversals.')">
-            <span class="node-tag">CRITICAL IMPACT</span>
-            <span class="node-name">process_refund(id)</span>
-          </div>
-
-          <div class="graph-node node-s4" style="top:50px; left:60px;" onmouseenter="showTooltip('payments/service.py', 'Source file containing core payment orchestration logic.')">
-            <span class="node-tag">SOURCE FILE</span>
+          <div class="graph-node node-source-origin node-s2" style="top:102px; left:28px; width:185px;" onmouseenter="showTooltip('payments/service.py', 'Source file containing core payment orchestration logic.', 'SOURCE FILE', 'neutral')" onmouseleave="resetTooltip()">
+            <div class="node-tag-row">
+              <span class="node-tag">SOURCE FILE</span>
+            </div>
             <span class="node-name">payments/service.py</span>
           </div>
 
-          <div class="graph-node node-s4" style="top:70px; left:870px;" onmouseenter="showTooltip('CheckoutController', 'Transitive consumer: web tier endpoint handling cart conversions.')">
-            <span class="node-tag">TRANSITIVE DEPTH 2</span>
+          <div class="graph-node node-anchor-root node-s1" style="top:96px; left:254px; width:220px;" onmouseenter="showTooltip('validate(payment)', 'Modified entity: checks 3DS authentication and amount rules. Blast radius: 3 callers, 1 critical downstream path.', 'MODIFIED ENTITY', 'indigo')" onmouseleave="resetTooltip()">
+            <div class="node-tag-row">
+              <span class="node-tag">MODIFIED ENTITY</span>
+              <span class="badge" style="background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.4); color:#818CF8; font-size:9px; padding:1px 5px; border-radius:4px;">ORIGIN</span>
+            </div>
+            <span class="node-name">validate(payment)</span>
+          </div>
+
+          <div class="graph-node node-caller-tier node-s2" style="top:46px; left:535px; width:205px;" onmouseenter="showTooltip('authorize(payment)', 'Direct caller: executes authorization transactions via gateway.', 'DIRECT CALLER', 'amber')" onmouseleave="resetTooltip()">
+            <div class="node-tag-row">
+              <span class="node-tag">DIRECT CALLER</span>
+              <span class="badge" style="background:rgba(251,191,36,0.12); border:1px solid rgba(251,191,36,0.3); color:#FBBF24; font-size:9px; padding:1px 5px; border-radius:4px;">CALLER</span>
+            </div>
+            <span class="node-name">authorize(payment)</span>
+          </div>
+
+          <div class="graph-node node-impact-danger node-s3" style="top:198px; left:535px; width:220px;" onmouseenter="showTooltip('process_refund(id)', 'Critical caller: relies on validate() reject logic during reversals. High regression risk.', 'CRITICAL IMPACT', 'red')" onmouseleave="resetTooltip()">
+            <div class="node-tag-row">
+              <span class="node-tag">CRITICAL IMPACT</span>
+              <span class="badge" style="background:rgba(248,113,113,0.15); border:1px solid rgba(248,113,113,0.4); color:#F87171; font-size:9px; padding:1px 5px; border-radius:4px;">HIGH RISK</span>
+            </div>
+            <span class="node-name">process_refund(id)</span>
+          </div>
+
+          <div class="graph-node node-transitive-consumer node-s5" style="top:46px; left:800px; width:195px;" onmouseenter="showTooltip('CheckoutController', 'Transitive consumer: web tier endpoint handling cart conversions.', 'TRANSITIVE DEPTH 2', 'neutral')" onmouseleave="resetTooltip()">
+            <div class="node-tag-row">
+              <span class="node-tag">TRANSITIVE DEPTH 2</span>
+            </div>
             <span class="node-name">CheckoutController</span>
           </div>
 
-          <div class="graph-node node-test node-s5" style="top:270px; left:860px;" onmouseenter="showTooltip('test_refund.py', 'Targeted test: 79% token & caller proximity score.')">
-            <span class="node-tag">TARGET TEST</span>
+          <div class="graph-node node-test-dest node-s4" style="top:198px; left:800px; width:200px;" onmouseenter="showTooltip('test_refund.py', 'Targeted test: 79% token &amp; caller proximity score. Recommended execution target.', 'TARGET TEST', 'green')" onmouseleave="resetTooltip()">
+            <div class="node-tag-row">
+              <span class="node-tag">TARGET TEST</span>
+              <span class="badge" style="background:rgba(52,211,153,0.15); border:1px solid rgba(52,211,153,0.4); color:#34D399; font-size:9px; padding:1px 5px; border-radius:4px;">VERIFIED</span>
+            </div>
             <span class="node-name">test_refund.py</span>
           </div>
 
-          <div class="graph-node node-evidence node-s5" style="top:320px; left:260px;" onmouseenter="showTooltip('Incident Checkpoint hist_b2', 'Historical evidence: refund failures tied to validation rejection.')">
-            <span class="node-tag">INCIDENT ANCHOR</span>
+          <div class="graph-node node-evidence-anchor node-s5" style="top:256px; left:254px; width:220px;" onmouseenter="showTooltip('checkpoint: hist_b2', 'Historical evidence: refund failures tied to validation rejection.', 'INCIDENT ANCHOR', 'cyan')" onmouseleave="resetTooltip()">
+            <div class="node-tag-row">
+              <span class="node-tag">INCIDENT ANCHOR</span>
+              <span class="badge" style="background:rgba(34,211,238,0.15); border:1px solid rgba(34,211,238,0.4); color:#22D3EE; font-size:9px; padding:1px 5px; border-radius:4px;">EVIDENCE</span>
+            </div>
             <span class="node-name">checkpoint: hist_b2</span>
           </div>
+        </div>
 
-          <div class="graph-tooltip" id="heroTooltip">
-            <div class="tooltip-title" id="tooltipTitle">payments/service.py</div>
-            <div class="tooltip-meta" id="tooltipMeta">Hover graph nodes to inspect AST relationships and blast radius propagation.</div>
+        <div class="graph-investigation-dock" id="heroTooltip">
+          <div class="dock-left">
+            <div class="dock-badge active-indigo" id="dockBadge">MODIFIED ENTITY</div>
+            <div class="dock-body">
+              <div class="dock-title" id="tooltipTitle">validate(payment)</div>
+              <div class="dock-meta" id="tooltipMeta">Modified entity: checks 3DS authentication and amount rules. Blast radius: 3 callers, 1 critical downstream path.</div>
+            </div>
+          </div>
+          <div class="dock-metrics">
+            <span class="dock-stat-pill">AST: Python 3.11</span>
+            <span class="dock-stat-pill">Risk: 0.88</span>
+            <span class="dock-stat-pill">Impact: Critical</span>
           </div>
         </div>
       </div>
@@ -784,13 +833,27 @@ function selectQuestion(num) {
   }
 }
 
-function showTooltip(title, meta) {
-  const tt = $('heroTooltip');
+function showTooltip(title, meta, badgeText, badgeType) {
   const tTitle = $('tooltipTitle');
   const tMeta = $('tooltipMeta');
-  if (tt && tTitle && tMeta) {
-    tTitle.textContent = title;
-    tMeta.textContent = meta;
+  const tBadge = $('dockBadge');
+  if (tTitle) tTitle.textContent = title;
+  if (tMeta) tMeta.textContent = meta;
+  if (tBadge && badgeText) {
+    tBadge.textContent = badgeText;
+    tBadge.className = 'dock-badge' + (badgeType ? ' active-' + badgeType : '');
+  }
+}
+
+function resetTooltip() {
+  const tTitle = $('tooltipTitle');
+  const tMeta = $('tooltipMeta');
+  const tBadge = $('dockBadge');
+  if (tTitle) tTitle.textContent = 'validate(payment)';
+  if (tMeta) tMeta.textContent = 'Modified entity: checks 3DS authentication and amount rules. Blast radius: 3 callers, 1 critical downstream path.';
+  if (tBadge) {
+    tBadge.textContent = 'MODIFIED ENTITY';
+    tBadge.className = 'dock-badge active-indigo';
   }
 }
 
