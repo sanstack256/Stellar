@@ -1,0 +1,72 @@
+We are working on the Buildathon Track 2 repository.
+
+Before making any code changes:
+
+1. Inspect the repository architecture.
+2. Read .entire/graph-agent.md and the repository agent instructions in AGENTS.md.
+3. Use the real Entire Graph to search the repository and inspect relevant definitions and relationships.
+4. Establish an initial architecture understanding.
+5. Do not modify application code yet.
+6. Treat Graph output as evidence, not an oracle. Explicitly identify any partial, unresolved, or heuristic relationships and verify important claims against source code and tests.
+7. Report the actual Graph commands/results you used and distinguish:
+   - confirmed structural evidence
+   - partial/heuristic evidence
+   - claims that require source or test verification.
+8. Do not invent Graph relationships, checkpoints, test results, or repository facts.
+
+---
+
+Before creating the initial checkpoint, perform a focused pre-check based on the architecture findings.
+
+1. Inspect checkpoint_for_commit and the entire_sim/checkpoint_sim fallback.
+2. Remove or replace any synthetic Entire checkpoint fallback so production behavior never presents simulated checkpoint data as real Entire evidence.
+3. The real Entire CLI (`entire explain --commit`) must remain the source of checkpoint evidence.
+4. If the real Entire command fails, return an explicit unavailable/partial verification state rather than synthetic data.
+5. Search the repository for any other synthetic Entire Graph, checkpoint, or semantic-diff providers and report them.
+6. Do NOT remove the TypeScript parse-failure fixture merely to make Graph appear complete. Preserve the incomplete-analysis condition and make sure it is clearly labeled as partial/unverified evidence.
+7. Run focused tests for the changed behavior.
+8. Show me:
+   - files changed
+   - exact behavior before/after
+   - tests executed and results
+   - any remaining Graph completeness limitations
+9. Do not create the checkpoint yet.
+
+---
+
+Do not modify application code.
+
+Inspect the Python dependency configuration for this repository and determine the correct, repository-defined way to install the test dependencies (for example requirements.txt, pyproject.toml, or another declared environment file).
+
+Do not invent dependencies or versions.
+
+Report:
+1. Which dependency file defines the test dependencies.
+2. The exact installation command you recommend.
+3. Whether installing the dependencies will affect the application code or only the environment.
+
+Do not install anything yet.
+
+---
+
+We need to clean the legacy demo-oriented tests while preserving real production behavior and Buildathon Track 2 evidence integrity.
+
+Inspect tests/test_pipeline_smoke.py and the current test suite.
+
+Requirements:
+1. Do NOT add fake commits, fake Git history, fake LLM credentials, fake Databricks data, or fake Entire/Graph results.
+2. The tests must be repository-agnostic and must not depend on specific commit messages such as "Fix fraud validation", "Add order receipt", or "quick fix for refund".
+3. Remove or replace the demo-history assertions in test_full_pipeline_flags_the_webhook_gap and test_demo_history_spans_low_medium_high_bands with meaningful repository-independent tests of actual ImpactLens behavior.
+4. Preserve the valuable first-commit/no-parent-diff behavior, but make it testable without requiring a configured external LLM. If the production contract requires LLM_BASE_URL, test the contract explicitly rather than weakening production behavior.
+5. Preserve test_invalid_commit_raises_analysis_error.
+6. Do not change production code merely to make tests pass.
+7. Inspect the current orchestrator, risk engine, Entire integration, and existing tests before editing.
+8. Use real source/test evidence. Do not treat partial Graph output as authoritative.
+9. Run focused tests after editing and report exactly what passed/failed.
+10. Do not commit yet.
+
+Before editing, use Entire Graph to inspect the relationships relevant to the tests and orchestrator, and state what you verified versus what Graph could not verify.
+
+---
+
+exit
