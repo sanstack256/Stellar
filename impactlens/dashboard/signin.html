@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — Stellar Codebase Impact Engine</title>
+  <meta name="description" content="Sign in to your Stellar account to inspect blast radius, analyze code impact, and trace AST dependencies.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/globals.css">
+</head>
+<body>
+  <div class="auth-viewport">
+    <div class="auth-ambient-glow"></div>
+    <div class="auth-card">
+      <div class="auth-header">
+        <a href="/" class="auth-brand-link" title="Return to Stellar Home">
+          <div class="auth-brand-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </div>
+          <div class="auth-brand-name">Stellar</div>
+          <div class="auth-brand-chip">AUTH GATEWAY</div>
+        </a>
+        <h1 class="auth-title">Sign in to Stellar</h1>
+        <p class="auth-subtitle">AI-powered codebase impact intelligence and blast-radius engine.</p>
+      </div>
+
+      <div id="authError" class="is-hidden" style="margin-bottom: 16px; padding: 10px 14px; background: rgba(248, 113, 113, 0.12); border: 1px solid var(--error); border-radius: var(--radius-sm); color: var(--error); font-size: 12.5px; line-height: 1.4;"></div>
+
+      <div class="auth-social-group">
+        <button type="button" class="auth-social-btn" onclick="simulateOAuth('GitHub')">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+          </svg>
+          <span>Continue with GitHub</span>
+        </button>
+
+        <button type="button" class="auth-social-btn" id="googleSignInBtn" onclick="handleGoogleSignIn(event)">
+          <svg viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
+            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.35 24 12 24z"/>
+            <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.35 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+          </svg>
+          <span id="googleBtnText">Continue with Google</span>
+        </button>
+      </div>
+
+      <div class="auth-divider">
+        <div class="auth-divider-line"></div>
+        <span class="auth-divider-text">Or continue with work email</span>
+        <div class="auth-divider-line"></div>
+      </div>
+
+      <form class="auth-form" id="signInForm" onsubmit="handleAuthSubmit(event)">
+        <div class="auth-field">
+          <label class="auth-label" for="signinEmail">Work Email</label>
+          <input type="email" id="signinEmail" class="auth-input" placeholder="developer@company.com" required autocomplete="email">
+        </div>
+
+        <div class="auth-field">
+          <div class="auth-label-row">
+            <label class="auth-label" for="signinPassword">Password</label>
+            <a href="javascript:void(0)" onclick="handleForgotPassword()" class="auth-link">Forgot password?</a>
+          </div>
+          <input type="password" id="signinPassword" class="auth-input" placeholder="••••••••••••" required autocomplete="current-password">
+        </div>
+
+        <div class="auth-checkbox-row">
+          <input type="checkbox" id="rememberDevice" class="auth-checkbox" checked>
+          <label for="rememberDevice" class="auth-checkbox-label">Remember this device for 30 days</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="submitBtn" style="width: 100%; justify-content: center; margin-top: var(--space-2);">
+          <span>Sign In</span>
+        </button>
+      </form>
+
+      <div class="auth-footer-nav">
+        <span>Don't have an account?</span>
+        <a href="/signup.html" class="auth-link">Create one</a>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { signInWithGoogle, onUserAuthStateChanged, getRedirectDestination } from '/auth.js';
+
+    const errEl = document.getElementById('authError');
+    const googleBtn = document.getElementById('googleSignInBtn');
+    const googleText = document.getElementById('googleBtnText');
+
+    function showError(msg) {
+      if (errEl) {
+        errEl.textContent = msg;
+        errEl.classList.remove('is-hidden');
+      }
+    }
+
+    function clearError() {
+      if (errEl) {
+        errEl.textContent = '';
+        errEl.classList.add('is-hidden');
+      }
+    }
+
+    window.handleGoogleSignIn = async function(e) {
+      if (e) e.preventDefault();
+      clearError();
+      if (googleBtn) {
+        googleBtn.style.opacity = '0.75';
+        googleBtn.style.pointerEvents = 'none';
+      }
+      if (googleText) googleText.textContent = 'Connecting to Google…';
+
+      try {
+        await signInWithGoogle();
+        if (googleText) googleText.textContent = 'Signed in! Redirecting…';
+        window.location.href = getRedirectDestination();
+      } catch (err) {
+        if (googleBtn) {
+          googleBtn.style.opacity = '1';
+          googleBtn.style.pointerEvents = 'auto';
+        }
+        if (googleText) googleText.textContent = 'Continue with Google';
+        if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
+          showError('Sign-in cancelled. Please try again.');
+        } else if (err.code === 'auth/unauthorized-domain') {
+          showError('This domain is not authorized in Firebase Console. Add localhost to Authorized Domains.');
+        } else if (err.message && err.message.includes('Firebase API key is missing')) {
+          showError(err.message);
+        } else {
+          showError(err.message || 'Authentication failed. Please try again.');
+        }
+      }
+    };
+
+    onUserAuthStateChanged(user => {
+      if (user) {
+        const params = new URLSearchParams(window.location.search);
+        if (!params.has('logout')) {
+          window.location.href = getRedirectDestination();
+        }
+      }
+    });
+
+    window.simulateOAuth = function(provider) {
+      clearError();
+      const btn = event.currentTarget;
+      btn.style.opacity = '0.7';
+      btn.style.pointerEvents = 'none';
+      btn.querySelector('span').textContent = `Connecting to ${provider}…`;
+      setTimeout(() => {
+        window.location.href = getRedirectDestination();
+      }, 900);
+    };
+
+    window.handleAuthSubmit = function(e) {
+      e.preventDefault();
+      clearError();
+      const btn = document.getElementById('submitBtn');
+      const span = btn.querySelector('span');
+      btn.disabled = true;
+      span.textContent = 'Authenticating…';
+      setTimeout(() => {
+        window.location.href = getRedirectDestination();
+      }, 750);
+    };
+
+    window.handleForgotPassword = function() {
+      const email = document.getElementById('signinEmail').value.trim();
+      if (!email) {
+        showError('Please enter your work email in the field above to receive a reset link.');
+        document.getElementById('signinEmail').focus();
+      } else {
+        alert(`Password reset instructions sent to ${email}`);
+      }
+    };
+  </script>
+</body>
+</html>

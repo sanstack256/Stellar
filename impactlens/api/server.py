@@ -18,7 +18,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request, Header
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, field_validator
 
@@ -31,6 +31,13 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name
 logger = logging.getLogger("stellar")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+try:
+    import dotenv
+    dotenv.load_dotenv(BASE_DIR / ".env")
+    dotenv.load_dotenv(BASE_DIR.parent / ".env")
+except Exception:
+    pass
 
 _SAFE_REF_RE = re.compile(r"^(?!-)[A-Za-z0-9._/\-]{1,200}$")
 
@@ -75,12 +82,30 @@ def _resolve_repo_path(repo_path: str) -> Path:
     configured = os.getenv("STELLAR_REPO_ROOT", os.getenv("IMPACTLENS_REPO_ROOT", "")).strip()
     root = Path(configured).expanduser().resolve() if configured else BASE_DIR.resolve()
     raw = Path(repo_path).expanduser()
-    candidate = (raw if raw.is_absolute() else root / raw).resolve()
-    try:
-        candidate.relative_to(root)
-    except ValueError:
+
+    candidates: list[Path] = []
+    if raw.is_absolute():
+        candidates.append(raw.resolve())
+    else:
+        candidates.append((root / raw).resolve())
+        candidates.append((BASE_DIR / raw).resolve())
+        candidates.append((root / "impactlens" / raw).resolve())
+        candidates.append((BASE_DIR / "repos" / raw).resolve())
+        candidates.append((root / "repos" / raw).resolve())
+
+    chosen: Path | None = None
+    for c in candidates:
+        if c.exists():
+            chosen = c
+            break
+    if chosen is None:
+        chosen = candidates[0]
+
+    allowed_roots = [root, BASE_DIR.resolve()]
+    is_safe = any(chosen == r or r in chosen.parents for r in allowed_roots)
+    if not is_safe:
         raise HTTPException(400, "repo_path must stay within repository root")
-    return candidate
+    return chosen
 
 
 class CloneRequest(BaseModel):
@@ -171,6 +196,43 @@ def integration_health():
     return result
 
 
+@app.get("/api/config/firebase")
+def firebase_config():
+    if not os.getenv("FIREBASE_API_KEY"):
+        try:
+            import dotenv
+            dotenv.load_dotenv(BASE_DIR / ".env", override=True)
+            dotenv.load_dotenv(BASE_DIR.parent / ".env", override=True)
+        except Exception:
+            pass
+    return {
+        "apiKey": os.getenv("FIREBASE_API_KEY", ""),
+        "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN", ""),
+        "projectId": os.getenv("FIREBASE_PROJECT_ID", ""),
+        "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET", ""),
+        "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID", ""),
+        "appId": os.getenv("FIREBASE_APP_ID", ""),
+        "measurementId": os.getenv("FIREBASE_MEASUREMENT_ID", "")
+    }
+
+
 dashboard_dir = BASE_DIR / "dashboard"
 if dashboard_dir.exists():
+    @app.api_route("/signin", methods=["GET", "HEAD"], response_class=FileResponse)
+    @app.api_route("/sign-in", methods=["GET", "HEAD"], response_class=FileResponse)
+    @app.api_route("/login", methods=["GET", "HEAD"], response_class=FileResponse)
+    def signin_page():
+        return FileResponse(str(dashboard_dir / "signin.html"))
+
+    @app.api_route("/signup", methods=["GET", "HEAD"], response_class=FileResponse)
+    @app.api_route("/sign-up", methods=["GET", "HEAD"], response_class=FileResponse)
+    @app.api_route("/register", methods=["GET", "HEAD"], response_class=FileResponse)
+    def signup_page():
+        return FileResponse(str(dashboard_dir / "signup.html"))
+
+    @app.api_route("/dashboard", methods=["GET", "HEAD"], response_class=FileResponse)
+    @app.api_route("/dashboard/", methods=["GET", "HEAD"], response_class=FileResponse)
+    def dashboard_page():
+        return FileResponse(str(dashboard_dir / "dashboard.html"))
+
     app.mount("/", StaticFiles(directory=str(dashboard_dir), html=True), name="dashboard")
