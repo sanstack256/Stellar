@@ -1,0 +1,56 @@
+We are now implementing the Track 2 Noon Curveball.
+
+CURVEBALL REQUIREMENT:
+Entire Graph is evidence, not an oracle. The repository contains code patterns that static analysis may not fully resolve (dynamic dispatch, generated code, reflection, or similar patterns).
+
+Required behavior:
+1. Never present incomplete Graph relationships as certain.
+2. Detect and explicitly identify when Graph analysis may be partial.
+3. Provide a safe fallback/verification path.
+4. Preserve existing behavior when Graph analysis is fully resolved.
+5. Add a test or fixture representing incomplete analysis.
+6. Clearly distinguish:
+   - confirmed structural evidence
+   - heuristic/incomplete evidence
+   - claims requiring source or test verification.
+
+Workflow requirements:
+- This is a FRESH agent session.
+- Reconstruct the previous architecture and intent from the pre-curveball Entire checkpoint.
+- BEFORE editing, use Entire Graph impact analysis on the affected production paths.
+- Verify Graph findings against source/tests.
+- Do not fabricate Graph relationships, checkpoints, external services, or test evidence.
+- Do not weaken production requirements just to make tests pass.
+
+First:
+A. Inspect/reconstruct the pre-curveball checkpoint context.
+B. Use Entire Graph search/impact to identify every production path consuming:
+   - relationship evidence
+   - impact evidence
+   - semantic diff evidence
+   - graph quality/confidence
+   - risk scoring
+   - LLM/report generation
+   - dashboard/API output
+C. Identify the repository fixture/code path where Graph analysis is partial.
+D. State explicitly which Graph relationships are confirmed and which are incomplete/heuristic.
+E. Only after that, edit the minimum required production and test code.
+
+Implementation goals:
+- Propagate Graph evidence quality through the analysis result.
+- A partial/unavailable Graph result must never be represented as confirmed structural evidence.
+- The report/UI/API must expose the partial state and a verification-required path.
+- Source/test verification must remain the fallback for uncertain relationships.
+- Fully resolved Graph behavior must remain unchanged.
+- Add a deterministic test/fixture for partial or redacted Graph analysis.
+- Keep the implementation repository-agnostic; do not reintroduce demo-specific assumptions.
+
+After editing:
+1. Run focused Track 2 tests.
+2. Run the complete Python test suite.
+3. Run git diff --check.
+4. Inspect the final diff.
+5. Report exact test results and any remaining limitations.
+6. Do NOT commit yet until I review the result.
+
+Do not use fake Entire output or synthetic evidence.
