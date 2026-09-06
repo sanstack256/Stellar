@@ -1,0 +1,2117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ImpactLens — AI Codebase Impact & Risk Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #060709;
+      --bg-surface: #0c0e12;
+      --bg-card: #12151b;
+      --bg-card-hover: #171b23;
+      --bg-glass: rgba(18, 21, 27, 0.85);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-strong: rgba(255, 255, 255, 0.15);
+      --border-focus: #f97316;
+      
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      
+      --brand-primary: #f97316;
+      --brand-glow: rgba(249, 115, 22, 0.25);
+      --brand-gradient: linear-gradient(135deg, #fb923c, #ea580c);
+      
+      --risk-low: #10b981;
+      --risk-low-bg: rgba(16, 185, 129, 0.12);
+      --risk-low-border: rgba(16, 185, 129, 0.35);
+      
+      --risk-med: #f59e0b;
+      --risk-med-bg: rgba(245, 158, 11, 0.12);
+      --risk-med-border: rgba(245, 158, 11, 0.35);
+      
+      --risk-high: #f97316;
+      --risk-high-bg: rgba(249, 115, 22, 0.14);
+      --risk-high-border: rgba(249, 115, 22, 0.45);
+      
+      --risk-crit: #ef4444;
+      --risk-crit-bg: rgba(239, 68, 68, 0.18);
+      --risk-crit-border: rgba(239, 68, 68, 0.55);
+      --risk-crit-glow: rgba(239, 68, 68, 0.35);
+      
+      --accent-cyan: #06b6d4;
+      --accent-indigo: #6366f1;
+      --accent-purple: #a855f7;
+      
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+      
+      --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.25);
+      --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.5);
+      --shadow-glow: 0 0 35px var(--brand-glow);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(1200px 700px at 80% -10%, rgba(249, 115, 22, 0.08), transparent 70%),
+        radial-gradient(900px 600px at 15% 20%, rgba(6, 182, 212, 0.04), transparent 65%),
+        radial-gradient(1000px 800px at 50% 100%, rgba(99, 102, 241, 0.04), transparent 70%);
+      background-attachment: fixed;
+    }
+
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.2);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.16);
+      border-radius: 99px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.28);
+    }
+
+    /* App Layout */
+    .app-container {
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      background: rgba(9, 11, 15, 0.92);
+      backdrop-filter: blur(24px);
+      border-right: 1px solid var(--border-subtle);
+      padding: 24px 18px;
+      display: flex;
+      flex-direction: column;
+      z-index: 40;
+    }
+
+    .brand-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 24px;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      background: var(--brand-gradient);
+      display: grid;
+      place-items: center;
+      box-shadow: 0 0 20px var(--brand-glow);
+      color: #000;
+      font-weight: 800;
+      font-size: 18px;
+    }
+
+    .brand-meta h1 {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    .brand-meta span {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--brand-primary);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .nav-group-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0 10px 10px;
+    }
+
+    .nav-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 24px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 11px 14px;
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      background: transparent;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      width: 100%;
+      text-align: left;
+    }
+
+    .nav-item:hover {
+      color: var(--text-main);
+      background: var(--bg-card);
+      border-color: var(--border-subtle);
+    }
+
+    .nav-item.active {
+      color: var(--text-main);
+      background: rgba(249, 115, 22, 0.1);
+      border-color: rgba(249, 115, 22, 0.3);
+      box-shadow: inset 3px 0 0 var(--brand-primary);
+    }
+
+    .nav-item svg {
+      width: 17px;
+      height: 17px;
+      opacity: 0.8;
+      flex-shrink: 0;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .engine-badge {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+    }
+
+    .engine-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+    }
+
+    .status-pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--risk-low);
+      box-shadow: 0 0 10px var(--risk-low);
+    }
+
+    .engine-status-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    /* Main Area */
+    .main-viewport {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .top-header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      height: 64px;
+      background: rgba(6, 7, 9, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+    }
+
+    .breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .breadcrumbs b {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid transparent;
+      outline: none;
+      white-space: nowrap;
+    }
+
+    .btn-ghost {
+      background: var(--bg-card);
+      color: var(--text-muted);
+      border-color: var(--border-subtle);
+    }
+
+    .btn-ghost:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-main);
+      border-color: var(--border-strong);
+    }
+
+    .btn-primary {
+      background: var(--brand-gradient);
+      color: #000;
+      box-shadow: 0 4px 14px rgba(249, 115, 22, 0.25);
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Page Content */
+    .content-wrapper {
+      max-width: 1440px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 32px 32px 80px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      min-width: 0;
+    }
+
+    /* Hero Section */
+    .hero-banner {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.9fr);
+      gap: 24px;
+      align-items: center;
+      background: linear-gradient(145deg, rgba(24, 28, 36, 0.5), rgba(12, 14, 18, 0.7));
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 30px 36px;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-banner::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -20%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(249, 115, 22, 0.08), transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--brand-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .hero-tag i {
+      width: 16px;
+      height: 2px;
+      background: var(--brand-primary);
+      display: inline-block;
+    }
+
+    .hero-title {
+      font-size: 34px;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.04em;
+      margin-bottom: 12px;
+    }
+
+    .hero-title span {
+      background: linear-gradient(135deg, #fb923c, #f43f5e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    /* Pipeline Mini Map */
+    .pipeline-card {
+      background: rgba(10, 12, 16, 0.85);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .pipeline-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .pipeline-steps {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pipe-node {
+      flex: 1;
+      padding: 10px 6px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+
+    .pipe-node.active {
+      background: rgba(249, 115, 22, 0.12);
+      border-color: rgba(249, 115, 22, 0.4);
+      color: var(--brand-primary);
+    }
+
+    .pipe-arrow {
+      color: var(--text-dim);
+      font-size: 10px;
+      opacity: 0.6;
+    }
+
+    /* Workspace Analyzer Card */
+    .analyzer-panel {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      backdrop-filter: blur(16px);
+      min-width: 0;
+    }
+
+    .panel-header {
+      padding: 20px 28px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      background: rgba(255, 255, 255, 0.015);
+    }
+
+    .panel-title h2 {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 3px;
+    }
+
+    .panel-title p {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .live-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 99px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--risk-low);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    /* Form Area */
+    .analyzer-form {
+      padding: 24px 28px;
+      background: rgba(0, 0, 0, 0.18);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .form-inputs {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.4fr) minmax(0, 0.9fr) auto;
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .input-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-dim);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .input-field {
+      height: 44px;
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--text-main);
+      padding: 0 14px;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .input-field:focus {
+      border-color: var(--border-focus);
+      background: var(--bg-card-hover);
+      box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12);
+    }
+
+    .form-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .preset-chips {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .preset-chip {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      padding: 6px 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .preset-chip:hover {
+      border-color: var(--brand-primary);
+      color: var(--text-main);
+      background: rgba(249, 115, 22, 0.08);
+    }
+
+    .preset-chip b {
+      color: var(--brand-primary);
+    }
+
+    .import-btn-link {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 6px;
+      transition: color 0.15s;
+    }
+
+    .import-btn-link:hover {
+      color: var(--text-main);
+    }
+
+    #repoHint {
+      margin-top: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--brand-primary);
+    }
+
+    /* Status Bar */
+    .status-strip {
+      padding: 12px 28px;
+      background: rgba(10, 12, 16, 0.6);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .status-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status-indicator {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--text-dim);
+    }
+
+    .busy .status-indicator {
+      background: var(--brand-primary);
+      box-shadow: 0 0 10px var(--brand-primary);
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.35; transform: scale(1.25); }
+    }
+
+    /* Error Banner Element */
+    .error-banner-box {
+      display: none;
+      margin: 20px 28px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid var(--risk-crit-border);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      color: #fca5a5;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    /* Empty Placeholder */
+    .empty-state {
+      padding: 80px 24px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .empty-icon-orb {
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(145deg, #181d26, #0e1117);
+      border: 1px solid var(--border-strong);
+      display: grid;
+      place-items: center;
+      color: var(--brand-primary);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 16px;
+    }
+
+    .empty-state strong {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .empty-state span {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      max-width: 520px;
+    }
+
+    /* Report Layout */
+    .report-container {
+      display: none;
+      padding: 28px;
+      gap: 24px;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    /* Top Executive Header Card */
+    .report-executive-banner {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 20px;
+      background: linear-gradient(145deg, var(--bg-card), rgba(14, 17, 23, 0.85));
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 26px;
+      box-shadow: var(--shadow-sm);
+      min-width: 0;
+    }
+
+    .change-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .sha-pill {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-subtle);
+      padding: 4px 9px;
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .sha-pill:hover {
+      border-color: var(--brand-primary);
+      color: var(--brand-primary);
+    }
+
+    .author-pill {
+      color: var(--text-muted);
+    }
+
+    .report-commit-title {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      margin-bottom: 12px;
+      word-break: break-word;
+    }
+
+    .report-what-changed {
+      font-size: 13px;
+      line-height: 1.65;
+      color: var(--text-muted);
+      word-break: break-word;
+    }
+
+    .report-intent-box {
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-left: 3px solid var(--brand-primary);
+      background: rgba(249, 115, 22, 0.05);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.55;
+      word-break: break-word;
+    }
+
+    .report-intent-box b {
+      color: var(--brand-primary);
+      font-weight: 600;
+      margin-right: 6px;
+    }
+
+    /* Risk Score Gauge Card */
+    .risk-gauge-card {
+      background: rgba(10, 12, 16, 0.9);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .risk-gauge-card.HIGH,
+    .risk-gauge-card.CRITICAL {
+      border-color: var(--risk-crit-border);
+      background: radial-gradient(circle at center, rgba(239, 68, 68, 0.12), rgba(10, 12, 16, 0.95));
+      box-shadow: 0 0 30px var(--risk-crit-glow);
+    }
+
+    .risk-gauge-card.MEDIUM {
+      border-color: var(--risk-med-border);
+      background: radial-gradient(circle at center, rgba(245, 158, 11, 0.1), rgba(10, 12, 16, 0.95));
+    }
+
+    .risk-gauge-card.LOW {
+      border-color: var(--risk-low-border);
+      background: radial-gradient(circle at center, rgba(16, 185, 129, 0.1), rgba(10, 12, 16, 0.95));
+    }
+
+    .gauge-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-dim);
+      font-weight: 600;
+    }
+
+    .gauge-score {
+      font-size: 56px;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.06em;
+      margin: 10px 0 8px;
+    }
+
+    .risk-badge-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 14px;
+      border-radius: 99px;
+      border: 1px solid currentColor;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .risk-badge-tag.LOW { color: var(--risk-low); background: var(--risk-low-bg); border-color: var(--risk-low-border); }
+    .risk-badge-tag.MEDIUM { color: var(--risk-med); background: var(--risk-med-bg); border-color: var(--risk-med-border); }
+    .risk-badge-tag.HIGH { color: var(--risk-high); background: var(--risk-high-bg); border-color: var(--risk-high-border); }
+    .risk-badge-tag.CRITICAL { color: var(--risk-crit); background: var(--risk-crit-bg); border-color: var(--risk-crit-border); }
+
+    /* HIGH RISK BANNER - ALWAYS PROMINENT AND VISIBLE */
+    .high-risk-alert-card {
+      display: none;
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(249, 115, 22, 0.08));
+      border: 1px solid var(--risk-crit-border);
+      border-radius: var(--radius-lg);
+      padding: 18px 24px;
+      gap: 16px;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(239, 68, 68, 0.15);
+    }
+
+    .high-risk-alert-card.show {
+      display: flex;
+    }
+
+    .alert-icon-wrap {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid var(--risk-crit-border);
+      display: grid;
+      place-items: center;
+      color: var(--risk-crit);
+      flex-shrink: 0;
+    }
+
+    .alert-content h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ff8585;
+      margin-bottom: 3px;
+    }
+
+    .alert-content p {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    /* Key Metrics Grid */
+    .metrics-bar {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .metric-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: border-color 0.2s;
+      min-width: 0;
+    }
+
+    .metric-card:hover {
+      border-color: var(--border-strong);
+    }
+
+    .metric-value {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text-main);
+    }
+
+    .metric-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* Main Two-Column Grid */
+    .report-main-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+      gap: 20px;
+      min-width: 0;
+    }
+
+    .report-column {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      min-width: 0;
+    }
+
+    /* Section Cards */
+    .dashboard-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 22px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .section-title-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 12px;
+    }
+
+    .section-title-bar h3 {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* Blast Radius Visualizer */
+    .graph-viewport {
+      background: #08090d;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .graph-mesh {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 24px 24px;
+      pointer-events: none;
+    }
+
+    .graph-nodes-flow {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 10px 4px 18px;
+    }
+
+    .node-box {
+      min-width: 170px;
+      max-width: 220px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .node-box.root-node {
+      background: rgba(249, 115, 22, 0.12);
+      border-color: rgba(249, 115, 22, 0.5);
+    }
+
+    .node-box.root-node .node-type {
+      color: var(--brand-primary);
+    }
+
+    .node-type {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8px;
+      font-weight: 700;
+      color: var(--text-dim);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .node-symbol {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-weight: 500;
+    }
+
+    .node-arrow {
+      color: var(--text-dim);
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .graph-footer-legend {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      margin-top: 10px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-box {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      background: var(--brand-primary);
+    }
+
+    /* What Might Be Missed / Gap List - FULL VISIBILITY & CLEAR SCROLL */
+    .missed-risks-scroll {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 480px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .missed-risk-card {
+      background: linear-gradient(145deg, rgba(23, 27, 34, 0.9), rgba(15, 18, 23, 0.95));
+      border: 1px solid var(--border-subtle);
+      border-left: 3px solid var(--brand-primary);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .missed-risk-card.critical-alert {
+      border-left-color: var(--risk-crit);
+      background: linear-gradient(145deg, rgba(38, 18, 20, 0.8), rgba(20, 12, 14, 0.9));
+      border-color: rgba(239, 68, 68, 0.25);
+    }
+
+    .missed-risk-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .missed-risk-entity {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: #fed7aa;
+      word-break: break-all;
+    }
+
+    .missed-risk-card.critical-alert .missed-risk-entity {
+      color: #fca5a5;
+    }
+
+    .missed-score-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(249, 115, 22, 0.15);
+      color: var(--brand-primary);
+      flex-shrink: 0;
+    }
+
+    .missed-risk-card.critical-alert .missed-score-tag {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--risk-crit);
+    }
+
+    .missed-risk-reason {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .incident-ref-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--text-dim);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 2px;
+    }
+
+    /* Test Plan List */
+    .tests-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 480px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .test-item-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      transition: all 0.18s;
+    }
+
+    .test-item-card:hover {
+      border-color: var(--border-strong);
+      background: var(--bg-card);
+    }
+
+    .test-item-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .test-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-dim);
+      flex-shrink: 0;
+    }
+
+    .test-item-card.critical .test-dot {
+      background: var(--risk-crit);
+      box-shadow: 0 0 10px var(--risk-crit);
+    }
+
+    .test-item-card.recommended .test-dot {
+      background: var(--accent-cyan);
+      box-shadow: 0 0 8px var(--accent-cyan);
+    }
+
+    .test-id-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .test-reason-text {
+      font-size: 10px;
+      color: var(--text-dim);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .test-badge-score {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    /* Deterministic Risk Reasons */
+    .reasons-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .reason-row {
+      display: flex;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      min-width: 0;
+      word-break: break-word;
+    }
+
+    .reason-index {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--brand-primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      font-weight: 700;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+
+    /* Provenance / Lakehouse Tags */
+    .provenance-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .provenance-tag {
+      padding: 12px 14px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--text-dim);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .provenance-tag strong {
+      font-size: 11px;
+      color: var(--text-main);
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Footer */
+    .report-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      padding: 16px 4px 0;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    /* Responsive Breakpoints */
+    @media (max-width: 1150px) {
+      .app-container {
+        grid-template-columns: 80px minmax(0, 1fr);
+      }
+      .sidebar {
+        padding: 20px 10px;
+        align-items: center;
+      }
+      .brand-box {
+        justify-content: center;
+        padding-bottom: 16px;
+      }
+      .brand-meta, .nav-group-title, .nav-item span, .engine-badge {
+        display: none;
+      }
+      .nav-item {
+        justify-content: center;
+        padding: 12px;
+      }
+      .hero-banner {
+        grid-template-columns: 1fr;
+      }
+      .form-inputs {
+        grid-template-columns: 1fr 1fr;
+      }
+      .form-inputs .btn-primary {
+        grid-column: 1 / -1;
+      }
+      .report-executive-banner {
+        grid-template-columns: 1fr;
+      }
+      .report-main-grid {
+        grid-template-columns: 1fr;
+      }
+      .metrics-bar {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .provenance-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .app-container {
+        display: block;
+      }
+      .sidebar {
+        display: none;
+      }
+      .top-header {
+        padding: 0 16px;
+      }
+      .content-wrapper {
+        padding: 16px 16px 60px;
+      }
+      .hero-title {
+        font-size: 26px;
+      }
+      .form-inputs {
+        grid-template-columns: 1fr;
+      }
+      .reasons-list {
+        grid-template-columns: 1fr;
+      }
+      .metrics-bar {
+        grid-template-columns: 1fr 1fr;
+      }
+      .provenance-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand-box">
+      <div class="brand-icon">I</div>
+      <div class="brand-meta">
+        <h1>ImpactLens</h1>
+        <span>AI CODE IMPACT</span>
+      </div>
+    </div>
+
+    <div class="nav-group-title">WORKSPACE</div>
+    <nav class="nav-menu">
+      <button class="nav-item active" onclick="scrollToTop()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+        <span>Executive Overview</span>
+      </button>
+      <button class="nav-item" onclick="focusAnalyzer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        <span>Analyze Change</span>
+      </button>
+      <button class="nav-item" onclick="focusSection('highRiskAlert')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+        <span>High-Risk Gaps</span>
+      </button>
+      <button class="nav-item" onclick="focusSection('blastRadiusSection')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="12" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 11l8-4M8 13l8 4"/></svg>
+        <span>Blast Radius</span>
+      </button>
+      <button class="nav-item" onclick="focusSection('testPlanSection')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg>
+        <span>Test Recommendations</span>
+      </button>
+    </nav>
+
+    <div class="nav-group-title">INFRASTRUCTURE</div>
+    <nav class="nav-menu">
+      <button class="nav-item" onclick="focusSection('provenanceSection')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        <span>Lakehouse Evidence</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="engine-badge">
+        <div class="engine-header">
+          <span>DATA PLANE</span>
+          <i class="status-pulse-dot"></i>
+        </div>
+        <div class="engine-status-text" id="engineStatus">Checking integrations…</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Viewport -->
+  <main class="main-viewport">
+    <header class="top-header">
+      <div class="breadcrumbs">
+        <span>ImpactLens Engine</span>
+        <span>/</span>
+        <b>Commit Impact & Risk Analysis</b>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-ghost" onclick="loadCommitsIntoPicker()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M1.05 12H7M17.01 12h5.95"/></svg>
+          Pick Commit
+        </button>
+        <button class="btn btn-primary" onclick="focusAnalyzer()">
+          <span>＋</span> New Analysis
+        </button>
+      </div>
+    </header>
+
+    <div class="content-wrapper">
+      <!-- Hero Banner -->
+      <section class="hero-banner">
+        <div>
+          <div class="hero-tag"><i></i>DETERMINISTIC CODE INTELLIGENCE</div>
+          <h1 class="hero-title">Know the blast radius <span>before</span> you merge.</h1>
+          <p class="hero-desc">ImpactLens analyzes structural call graphs, developer intent checkpoints, and historical incident memory to evaluate every commit with precision.</p>
+        </div>
+        <div class="pipeline-card">
+          <div class="pipeline-title">
+            <span>PIPELINE FLOW</span>
+            <span>END-TO-END</span>
+          </div>
+          <div class="pipeline-steps">
+            <div class="pipe-node active">1. GRAPH</div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-node active">2. HISTORY</div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-node active">3. RISK</div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-node active">4. TESTS</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Workspace Form -->
+      <section class="analyzer-panel" id="analyzer">
+        <div class="panel-header">
+          <div class="panel-title">
+            <h2>Analyze Repository & Commit</h2>
+            <p>DETERMINE BLAST RADIUS, TEST IMPACT &amp; RISK LEVEL</p>
+          </div>
+          <div class="live-chip">● ACTIVE ENGINE</div>
+        </div>
+
+        <div class="analyzer-form">
+          <div class="form-inputs">
+            <div class="input-group">
+              <label class="input-label">Repository Directory</label>
+              <input class="input-field" id="repoPath" value="sample_repo" placeholder="sample_repo" onchange="cachedCommits=null; lastFetchedRepo=null; getCommits();">
+            </div>
+            <div class="input-group">
+              <label class="input-label">GitHub URL (Optional)</label>
+              <input class="input-field" id="repoUrl" placeholder="https://github.com/org/repo.git">
+            </div>
+            <div class="input-group">
+              <label class="input-label">Commit SHA / Ref (or select from list)</label>
+              <input class="input-field" id="commitSha" list="commitDatalist" value="HEAD" placeholder="HEAD, SHA, or pick below">
+              <datalist id="commitDatalist"></datalist>
+            </div>
+            <button class="btn btn-primary" id="runBtn" onclick="runAnalysis()">
+              <span>Analyze Change →</span>
+            </button>
+          </div>
+
+          <div class="form-toolbar">
+            <div class="preset-chips">
+              <span style="font-family:'JetBrains Mono'; font-size:10px; color:var(--text-dim);">DEMO SCENARIOS:</span>
+              <button class="preset-chip" onclick="runPreset('Add order receipt')"><b>LOW</b> · Order Receipt</button>
+              <button class="preset-chip" onclick="runPreset('Fix fraud validation')"><b>MEDIUM</b> · Fraud Validation</button>
+              <button class="preset-chip" onclick="runPreset('quick fix for refund')"><b>HIGH</b> · Refund Core</button>
+            </div>
+            <button class="import-btn-link" onclick="importRepo()">
+              <span>＋ Clone &amp; Import from GitHub</span>
+            </button>
+          </div>
+          <div id="repoHint"></div>
+        </div>
+
+        <div class="status-strip" id="statusbar">
+          <div class="status-left">
+            <i class="status-indicator"></i>
+            <span id="status">Ready to analyze code changes.</span>
+          </div>
+          <span id="runMeta"></span>
+        </div>
+
+        <!-- Error Banner (Standalone) -->
+        <div id="errorBanner" class="error-banner-box"></div>
+
+        <!-- Empty State Placeholder -->
+        <div id="emptyState" class="empty-state">
+          <div class="empty-icon-orb">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>
+          </div>
+          <strong>No commit analyzed yet</strong>
+          <span>Select a scenario above or enter a repository commit to inspect risk factors, blast radius, test priorities, and missed-risk gaps.</span>
+        </div>
+
+        <!-- Report Output Container -->
+        <div id="reportContainer" class="report-container">
+          <!-- Executive Banner -->
+          <div class="report-executive-banner">
+            <div>
+              <div class="change-meta-row">
+                <span class="sha-pill" id="commitPill" onclick="copyCommit()">SHA</span>
+                <span class="author-pill" id="commitAuthor">Author</span>
+              </div>
+              <h2 class="report-commit-title" id="commitSubject">Commit Title</h2>
+              <p class="report-what-changed" id="whatChangedText">Description</p>
+              <div class="report-intent-box" id="intentBox" style="display:none;"></div>
+            </div>
+
+            <!-- Risk Gauge -->
+            <div class="risk-gauge-card" id="riskGaugeCard">
+              <span class="gauge-label">Impact Score</span>
+              <div class="gauge-score" id="riskScoreVal">0</div>
+              <span class="risk-badge-tag" id="riskBandBadge">MEDIUM RISK</span>
+            </div>
+          </div>
+
+          <!-- HIGH-RISK WARNING ALERT BANNER -->
+          <div class="high-risk-alert-card" id="highRiskAlert">
+            <div class="alert-icon-wrap">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+            </div>
+            <div class="alert-content">
+              <h3 id="highRiskAlertTitle">High Risk Impact Detected</h3>
+              <p id="highRiskAlertText">This commit touches core dependencies with high propagation depth. High-priority test executions and missed-risk reviews are required before merging.</p>
+            </div>
+          </div>
+
+          <!-- Key Metrics Grid -->
+          <div class="metrics-bar">
+            <div class="metric-card">
+              <span class="metric-value" id="mBlastCount">0</span>
+              <span class="metric-label">Affected Entities</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-value" id="mDepthSignal">0</span>
+              <span class="metric-label">Dependency Depth</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-value" id="mCoverageGap">0%</span>
+              <span class="metric-label">Coverage Gap</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-value" id="mHistoryHits">0</span>
+              <span class="metric-label">Historical Matches</span>
+            </div>
+          </div>
+
+          <!-- Two-Column Main Content -->
+          <div class="report-main-grid">
+            <!-- Left Column: Blast Radius & Test Plan -->
+            <div class="report-column">
+              <!-- Blast Radius Graph -->
+              <div class="dashboard-section" id="blastRadiusSection">
+                <div class="section-title-bar">
+                  <h3>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="12" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 11l8-4M8 13l8 4"/></svg>
+                    Blast Radius Visualizer
+                  </h3>
+                  <span class="section-tag" id="blastGraphMeta">0 ENTITIES</span>
+                </div>
+                <div class="graph-viewport">
+                  <div class="graph-mesh"></div>
+                  <div class="graph-nodes-flow" id="graphFlow"></div>
+                </div>
+                <div class="graph-footer-legend">
+                  <div class="legend-item"><div class="legend-box"></div><span>Root Changed Entity</span></div>
+                  <div class="legend-item"><span>→ Downstream Caller</span></div>
+                </div>
+              </div>
+
+              <!-- Recommended Test Plan -->
+              <div class="dashboard-section" id="testPlanSection">
+                <div class="section-title-bar">
+                  <h3>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg>
+                    Targeted Test Recommendations
+                  </h3>
+                  <span class="section-tag">RANKED RELEVANCE</span>
+                </div>
+                <div class="tests-list" id="testsList"></div>
+              </div>
+            </div>
+
+            <!-- Right Column: What You May Have Missed & Why This Score -->
+            <div class="report-column">
+              <!-- What You May Have Missed (High Risk Items) -->
+              <div class="dashboard-section" id="missedRisksSection">
+                <div class="section-title-bar">
+                  <h3 style="color:#fb923c;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+                    What You May Have Missed
+                  </h3>
+                  <span class="section-tag">GAP DETECTION</span>
+                </div>
+                <div class="missed-risks-scroll" id="missedRisksList"></div>
+              </div>
+
+              <!-- Why This Score Breakdown -->
+              <div class="dashboard-section" id="scoreReasonsSection">
+                <div class="section-title-bar">
+                  <h3>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                    Deterministic Scoring Reasons
+                  </h3>
+                  <span class="section-tag">AUDITABLE FACTORS</span>
+                </div>
+                <div class="reasons-list" id="reasonsList"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Full-Width Provenance & Lakehouse Section -->
+          <div class="dashboard-section" id="provenanceSection">
+            <div class="section-title-bar">
+              <h3>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                Evidence &amp; Provenance Tracking
+              </h3>
+              <span class="section-tag">LAKEHOUSE TRACEABILITY</span>
+            </div>
+            <div class="provenance-grid" id="provenanceGrid"></div>
+          </div>
+
+          <!-- Report Footer -->
+          <footer class="report-footer">
+            <span>ImpactLens Engine · Evidence-grounded impact analysis</span>
+            <span id="footerMeta"></span>
+          </footer>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+const API_BASE = window.location.origin;
+let cachedCommits = null;
+let importedRepo = null;
+let lastAnalyzedSha = '';
+
+const $ = id => document.getElementById(id);
+const esc = s => {
+  const d = document.createElement('div');
+  d.textContent = String(s ?? '');
+  return d.innerHTML;
+};
+const short = s => {
+  const str = String(s ?? '');
+  const parts = str.split('.');
+  return parts.length > 2 ? parts.slice(-2).join('.') : str;
+};
+
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function focusAnalyzer() {
+  $('analyzer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  setTimeout(() => $('repoPath').focus(), 300);
+}
+
+function focusSection(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.style.borderColor = 'var(--brand-primary)';
+    setTimeout(() => { el.style.borderColor = ''; }, 1500);
+  }
+}
+
+async function loadEngineStatus() {
+  try {
+    const r = await fetch(`${API_BASE}/health/integrations`);
+    const x = await r.json();
+    $('engineStatus').textContent = `Entire: ${x.entire && x.entire.enabled ? 'Live' : 'Sim/Demo'} · Databricks: ${x.databricks && x.databricks.enabled ? 'Connected' : 'Local Stand-in'}`;
+  } catch (e) {
+    $('engineStatus').textContent = 'Local Stand-in Engine Active';
+  }
+}
+
+async function importRepo() {
+  const url = $('repoUrl').value.trim();
+  if (!url) {
+    $('repoHint').textContent = 'Please enter an HTTPS Git repository URL above first.';
+    return;
+  }
+  $('repoHint').textContent = 'Cloning and indexing repository…';
+  try {
+    const r = await fetch(`${API_BASE}/repos/clone`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ repo_url: url })
+    });
+    const x = await r.json();
+    if (!r.ok) throw new Error(x.detail || 'Repository import failed');
+    importedRepo = x;
+    $('repoPath').value = x.repo_path;
+    $('commitSha').value = x.head;
+    $('repoHint').textContent = `Successfully cloned ${x.repo_name} (${(x.head || '').slice(0, 10)})`;
+    cachedCommits = null;
+    await loadEngineStatus();
+  } catch (e) {
+    $('repoHint').textContent = `Import error: ${e.message}`;
+  }
+}
+
+let lastFetchedRepo = null;
+
+async function getCommits(forceRepo = null) {
+  const repo = forceRepo || $('repoPath').value.trim() || 'sample_repo';
+  if (cachedCommits && lastFetchedRepo === repo) return cachedCommits;
+  const r = await fetch(`${API_BASE}/commits?repo_path=${encodeURIComponent(repo)}`);
+  if (!r.ok) {
+    let err = await r.text();
+    try { err = JSON.parse(err).detail || err; } catch(_) {}
+    throw new Error(err || 'Failed to fetch commits');
+  }
+  const x = await r.json();
+  cachedCommits = x.commits || [];
+  lastFetchedRepo = repo;
+  updateCommitDatalist(cachedCommits);
+  return cachedCommits;
+}
+
+function updateCommitDatalist(commits) {
+  const dl = $('commitDatalist');
+  if (!dl) return;
+  dl.innerHTML = commits.map(c => `<option value="${c.sha}">${c.subject}</option>`).join('');
+}
+
+async function loadCommitsIntoPicker() {
+  $('repoHint').textContent = 'Fetching repository commits…';
+  try {
+    const cs = await getCommits();
+    if (cs.length) {
+      $('commitSha').value = cs[0].sha;
+      $('repoHint').textContent = `Latest commit (${cs[0].sha.slice(0, 10)}): ${cs[0].subject}`;
+      focusAnalyzer();
+    } else {
+      $('repoHint').textContent = 'No commits found in this repository.';
+    }
+  } catch (e) {
+    $('repoHint').textContent = `Error fetching commits: ${e.message}`;
+  }
+}
+
+async function runPreset(match) {
+  // Demo scenarios are tied to sample_repo - auto-switch repository
+  $('repoPath').value = 'sample_repo';
+  importedRepo = null;
+  cachedCommits = null;
+  lastFetchedRepo = null;
+  $('errorBanner').style.display = 'none';
+  $('status').textContent = `Loading demo commit for "${match}" from sample_repo…`;
+  $('statusbar').classList.add('busy');
+  
+  try {
+    const cs = await getCommits('sample_repo');
+    const c = cs.find(v => v.subject && v.subject.toLowerCase().includes(match.toLowerCase()));
+    if (!c) throw new Error(`No commit found matching "${match}" in sample_repo`);
+    $('commitSha').value = c.sha;
+    $('repoHint').textContent = `Loaded scenario from sample_repo: ${c.subject}`;
+    await runAnalysis();
+  } catch (e) {
+    showError(e.message);
+  } finally {
+    $('statusbar').classList.remove('busy');
+  }
+}
+
+async function runAnalysis() {
+  const btn = $('runBtn');
+  const repo_path = $('repoPath').value || 'sample_repo';
+  const repo_name = (importedRepo && importedRepo.repo_name) || repo_path.split('/').pop() || 'ecommerce-demo';
+  const commit = $('commitSha').value || 'HEAD';
+
+  btn.disabled = true;
+  $('statusbar').classList.add('busy');
+  $('status').textContent = 'Traversing graph · querying memory · computing risk scores…';
+  $('runMeta').textContent = 'analysis in progress';
+  $('errorBanner').style.display = 'none';
+
+  try {
+    const r = await fetch(`${API_BASE}/analyze/${encodeURIComponent(commit)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ repo_path, repo_name })
+    });
+    if (!r.ok) {
+      let errMsg = r.statusText;
+      try {
+        const errBody = await r.json();
+        errMsg = errBody.detail || JSON.stringify(errBody);
+      } catch (_) {
+        errMsg = await r.text();
+      }
+      throw new Error(errMsg || 'Analysis request failed');
+    }
+    const data = await r.json();
+    renderReport(data);
+    const sub = (data.commit && data.commit.subject) ? data.commit.subject : 'Analysis ready';
+    $('status').textContent = `Analysis complete · ${sub}`;
+    const shaShort = (data.commit && data.commit.sha) ? data.commit.sha.slice(0, 10) : '';
+    const author = (data.commit && data.commit.author) ? data.commit.author : '';
+    $('runMeta').textContent = `${shaShort} (${author})`;
+  } catch (e) {
+    showError(e.message);
+    $('status').textContent = 'Analysis failed';
+    $('runMeta').textContent = '';
+  } finally {
+    btn.disabled = false;
+    $('statusbar').classList.remove('busy');
+  }
+}
+
+function showError(msg) {
+  $('errorBanner').style.display = 'block';
+  $('errorBanner').innerHTML = `⚠️ <b>Error:</b> ${esc(msg)}`;
+  $('reportContainer').style.display = 'none';
+  $('emptyState').style.display = 'none';
+}
+
+function copyCommit() {
+  if (lastAnalyzedSha) {
+    navigator.clipboard.writeText(lastAnalyzedSha);
+    const pill = $('commitPill');
+    if (pill) {
+      pill.textContent = '✓ Copied SHA';
+      setTimeout(() => { pill.textContent = `SHA: ${lastAnalyzedSha.slice(0, 10)}`; }, 1500);
+    }
+  }
+}
+
+function renderReport(data) {
+  $('errorBanner').style.display = 'none';
+  $('emptyState').style.display = 'none';
+  $('reportContainer').style.display = 'flex';
+
+  const commit = data.commit || {};
+  const risk = data.risk || {};
+  const report = data.report || {};
+  const band = String(risk.risk_band || 'MEDIUM').toUpperCase();
+  const score = risk.risk_score != null ? Math.round(Number(risk.risk_score) * 10) / 10 : 0;
+  lastAnalyzedSha = commit.sha || '';
+
+  // Executive Header
+  const pill = $('commitPill');
+  if (pill) pill.textContent = `SHA: ${lastAnalyzedSha ? lastAnalyzedSha.slice(0, 10) : 'HEAD'}`;
+  const authorEl = $('commitAuthor');
+  if (authorEl) authorEl.textContent = `${commit.author || 'Author'} · ${commit.date || 'Recent'}`;
+  const subjectEl = $('commitSubject');
+  if (subjectEl) subjectEl.textContent = commit.subject || 'Code Change Analysis';
+  const descEl = $('whatChangedText');
+  if (descEl) descEl.textContent = report.what_changed || (data.changed_files ? `Files changed: ${data.changed_files.join(', ')}` : 'No file changes detected.');
+
+  const intentBox = $('intentBox');
+  if (intentBox) {
+    if (data.developer_checkpoint && (data.developer_checkpoint.checkpoint_summary || data.developer_checkpoint.prompt)) {
+      const intent = data.developer_checkpoint.checkpoint_summary || data.developer_checkpoint.prompt;
+      intentBox.style.display = 'block';
+      intentBox.innerHTML = `<b>Developer Intent:</b> ${esc(intent)}`;
+    } else {
+      intentBox.style.display = 'none';
+    }
+  }
+
+  // Risk Gauge Card
+  const gaugeCard = $('riskGaugeCard');
+  if (gaugeCard) gaugeCard.className = `risk-gauge-card ${band}`;
+  const scoreVal = $('riskScoreVal');
+  if (scoreVal) {
+    scoreVal.textContent = score;
+    scoreVal.style.color = band === 'CRITICAL' ? 'var(--risk-crit)' : band === 'HIGH' ? 'var(--risk-high)' : band === 'MEDIUM' ? 'var(--risk-med)' : 'var(--risk-low)';
+  }
+  const bandBadge = $('riskBandBadge');
+  if (bandBadge) {
+    bandBadge.className = `risk-badge-tag ${band}`;
+    bandBadge.textContent = `${band} RISK`;
+  }
+
+  // High Risk Banner
+  const alertCard = $('highRiskAlert');
+  if (alertCard) {
+    if (band === 'HIGH' || band === 'CRITICAL' || score >= 60) {
+      alertCard.classList.add('show');
+      const t = $('highRiskAlertTitle');
+      if (t) t.textContent = `${band} RISK LEVEL DETECTED (${score}/100)`;
+      const p = $('highRiskAlertText');
+      if (p) p.textContent = `This commit touches core dependencies with high propagation depth. High-priority test executions and missed-risk reviews are required before merging.`;
+    } else {
+      alertCard.classList.remove('show');
+    }
+  }
+
+  // Key Metrics
+  const affected = data.affected_entities || [];
+  const comp = risk.components || {};
+  let depth = 0;
+  if (comp.dependency_depth != null) {
+    depth = comp.dependency_depth;
+  } else if (affected.length > 0) {
+    depth = Math.max(...affected.map(a => a.depth || 1));
+  }
+  if ($('mBlastCount')) $('mBlastCount').textContent = affected.length;
+  if ($('mDepthSignal')) $('mDepthSignal').textContent = depth;
+  if ($('mCoverageGap')) $('mCoverageGap').textContent = `${comp.coverage_gap != null ? comp.coverage_gap : 0}%`;
+  if ($('mHistoryHits')) $('mHistoryHits').textContent = (data.historical_checkpoints_matched || []).length;
+
+  // Blast Radius Flow
+  const changed = data.changed_entities || [];
+  const flowNodes = [];
+  changed.forEach(c => flowNodes.push({ name: c, isRoot: true }));
+  affected.forEach(a => {
+    if (!changed.includes(a.entity_id)) {
+      flowNodes.push({ name: a.entity_id, isRoot: false, depth: a.depth || 1 });
+    }
+  });
+
+  const graphFlowHtml = flowNodes.length ? flowNodes.map((n, i) => `
+    ${i > 0 ? '<div class="node-arrow">→</div>' : ''}
+    <div class="node-box ${n.isRoot ? 'root-node' : ''}" title="${esc(n.name)}">
+      <div class="node-type">${n.isRoot ? 'ROOT CHANGED' : `DEPTH ${n.depth || 1} CALLER`}</div>
+      <div class="node-symbol">${esc(short(n.name))}</div>
+    </div>
+  `).join('') : '<div style="color:var(--text-dim);font-size:12px;padding:8px 0;">No downstream callers affected.</div>';
+
+  if ($('graphFlow')) $('graphFlow').innerHTML = graphFlowHtml;
+  if ($('blastGraphMeta')) $('blastGraphMeta').textContent = `${affected.length} ENTITIES AFFECTED`;
+
+  // What You May Have Missed (High-Risk Items & Gaps)
+  const candidateMissed = data.candidate_missed_risks || [];
+  const fallbackMissed = (report.what_might_be_missed || []).map(m => ({
+    entity_id: m.concern,
+    reason: m.reason,
+    missed_risk_score: 90
+  }));
+  const missedToRender = candidateMissed.length ? candidateMissed : fallbackMissed;
+
+  const missedHtml = missedToRender.length ? missedToRender.map(m => {
+    const isCrit = (m.missed_risk_score != null && m.missed_risk_score >= 80);
+    return `
+      <div class="missed-risk-card ${isCrit ? 'critical-alert' : ''}">
+        <div class="missed-risk-header">
+          <span class="missed-risk-entity">⚠ ${esc(m.entity_id || m.concern)}</span>
+          ${m.missed_risk_score != null ? `<span class="missed-score-tag">${Math.round(m.missed_risk_score)}% RISK</span>` : ''}
+        </div>
+        <div class="missed-risk-reason">${esc(m.reason || 'Historical incident pattern or untested downstream surface.')}</div>
+        ${m.supporting_checkpoint_id ? `<div class="incident-ref-badge">🔗 Past Incident Checkpoint: ${esc(m.supporting_checkpoint_id)}</div>` : ''}
+      </div>
+    `;
+  }).join('') : '<div style="color:var(--text-dim);font-size:12px;padding:8px 0;">No gaps or missed-risk anomalies detected.</div>';
+
+  if ($('missedRisksList')) $('missedRisksList').innerHTML = missedHtml;
+
+  // Recommended Test Plan
+  const recs = data.recommended_tests || [];
+  const fallbackTests = (report.what_to_test || []).map(t => ({
+    test_id: t.test,
+    priority: t.priority || 'recommended',
+    relevance_score: 80,
+    reason: t.reason || ''
+  }));
+  const testsToRender = recs.length ? recs : fallbackTests;
+
+  const testsHtml = testsToRender.length ? testsToRender.map(t => {
+    const isCrit = String(t.priority || '').toLowerCase() === 'critical';
+    return `
+      <div class="test-item-card ${isCrit ? 'critical' : 'recommended'}">
+        <div class="test-item-left">
+          <i class="test-dot"></i>
+          <div>
+            <div class="test-id-name">${esc(t.test_id)}</div>
+            ${t.reason ? `<div class="test-reason-text">${esc(t.reason)}</div>` : ''}
+          </div>
+        </div>
+        <span class="test-badge-score">${t.relevance_score ? `${Math.round(t.relevance_score)}% MATCH` : String(t.priority || 'RECOMMENDED').toUpperCase()}</span>
+      </div>
+    `;
+  }).join('') : '<div style="color:var(--text-dim);font-size:12px;padding:8px 0;">No targeted tests indexed for this module.</div>';
+
+  if ($('testsList')) $('testsList').innerHTML = testsHtml;
+
+  // Reasons Breakdown
+  const reasons = risk.risk_reasons || [];
+  const reasonsHtml = reasons.length ? reasons.map((r, i) => `
+    <div class="reason-row">
+      <span class="reason-index">${String(i + 1).padStart(2, '0')}</span>
+      <span>${esc(r)}</span>
+    </div>
+  `).join('') : '<div style="color:var(--text-dim);font-size:12px;padding:8px 0;">Risk computed within normal bounds.</div>';
+
+  if ($('reasonsList')) $('reasonsList').innerHTML = reasonsHtml;
+
+  // Evidence & Provenance
+  if ($('provenanceGrid')) {
+    $('provenanceGrid').innerHTML = `
+      <div class="provenance-tag">
+        <span>GRAPH ENGINE</span>
+        <strong>${data.data_plane === 'databricks' ? 'Entire Graph' : 'AST Call Graph (Local)'}</strong>
+      </div>
+      <div class="provenance-tag">
+        <span>RETRIEVAL BACKBONE</span>
+        <strong>${data.data_plane === 'databricks' ? 'Databricks AI Search' : 'TF-IDF Vector Index'}</strong>
+      </div>
+      <div class="provenance-tag">
+        <span>REASONING AGENT</span>
+        <strong>${esc(report.engine || 'Deterministic Engine')}</strong>
+      </div>
+      <div class="provenance-tag">
+        <span>ANALYSIS RUN ID</span>
+        <strong title="${esc(data.run_id)}">${esc((data.run_id || '').slice(0, 12) || 'local-run')}</strong>
+      </div>
+      <div class="provenance-tag">
+        <span>LAKEHOUSE WRITE</span>
+        <strong>${esc(data.databricks_write || (data.data_plane === 'databricks' ? 'OK' : 'Local Stand-in'))}</strong>
+      </div>
+    `;
+  }
+
+  if ($('footerMeta')) $('footerMeta').textContent = `Engine: ${esc(report.engine || 'impactlens')} · Plane: ${esc(data.data_plane || 'local')}`;
+}
+
+loadEngineStatus();
+getCommits();
+</script>
+</body>
+</html>
