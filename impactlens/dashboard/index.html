@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><polygon points='12,2 15,9 22,12 15,15 12,22 9,15 2,12 9,9' fill='%236366f1'/></svg>">
-  <link rel="stylesheet" href="globals.css">
+  <link rel="stylesheet" href="/globals.css">
 </head>
 <body>
 
@@ -746,6 +746,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   checkIntegrations();
   getCommits('sample_repo');
+
+  if (window.location.pathname.startsWith('/dashboard') || window.location.hash === '#analyzer') {
+    setTimeout(focusAnalyzer, 120);
+  }
+});
+
+window.addEventListener('hashchange', () => {
+  if (window.location.hash === '#analyzer') {
+    focusAnalyzer();
+  }
 });
 
 function highlightChain(id) {
@@ -926,6 +936,7 @@ function scrollToTop() {
 function focusAnalyzer() {
   const el = $('analyzer');
   if (el) {
+    el.querySelectorAll('.reveal-item').forEach(item => item.classList.add('revealed'));
     el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     setTimeout(() => {
       const inp = $('repoPath');

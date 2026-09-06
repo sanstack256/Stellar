@@ -66,5 +66,5 @@ export function getRedirectDestination() {
   if (redirect && redirect.startsWith("/") && !redirect.startsWith("//")) {
     return redirect;
   }
-  return "/";
+  return "/dashboard";
 }

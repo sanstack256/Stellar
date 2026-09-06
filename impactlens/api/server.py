@@ -200,17 +200,22 @@ def firebase_config():
 
 dashboard_dir = BASE_DIR / "dashboard"
 if dashboard_dir.exists():
-    @app.get("/signin", response_class=FileResponse)
-    @app.get("/sign-in", response_class=FileResponse)
-    @app.get("/login", response_class=FileResponse)
+    @app.api_route("/signin", methods=["GET", "HEAD"], response_class=FileResponse)
+    @app.api_route("/sign-in", methods=["GET", "HEAD"], response_class=FileResponse)
+    @app.api_route("/login", methods=["GET", "HEAD"], response_class=FileResponse)
     def signin_page():
         return FileResponse(str(dashboard_dir / "signin.html"))
 
-    @app.get("/signup", response_class=FileResponse)
-    @app.get("/sign-up", response_class=FileResponse)
-    @app.get("/register", response_class=FileResponse)
+    @app.api_route("/signup", methods=["GET", "HEAD"], response_class=FileResponse)
+    @app.api_route("/sign-up", methods=["GET", "HEAD"], response_class=FileResponse)
+    @app.api_route("/register", methods=["GET", "HEAD"], response_class=FileResponse)
     def signup_page():
         return FileResponse(str(dashboard_dir / "signup.html"))
+
+    @app.api_route("/dashboard", methods=["GET", "HEAD"], response_class=FileResponse)
+    @app.api_route("/dashboard/", methods=["GET", "HEAD"], response_class=FileResponse)
+    def dashboard_page():
+        return FileResponse(str(dashboard_dir / "index.html"))
 
     app.mount("/", StaticFiles(directory=str(dashboard_dir), html=True), name="dashboard")
 
