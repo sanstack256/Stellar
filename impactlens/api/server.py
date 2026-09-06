@@ -32,6 +32,13 @@ logger = logging.getLogger("stellar")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+try:
+    import dotenv
+    dotenv.load_dotenv(BASE_DIR / ".env")
+    dotenv.load_dotenv(BASE_DIR.parent / ".env")
+except Exception:
+    pass
+
 _SAFE_REF_RE = re.compile(r"^(?!-)[A-Za-z0-9._/\-]{1,200}$")
 
 app = FastAPI(title="Stellar", description="AI Codebase Impact & Risk Engine")
@@ -169,6 +176,18 @@ def integration_health():
         except Exception as exc:
             result["databricks"]["error"] = str(exc)
     return result
+
+
+@app.get("/api/config/firebase")
+def firebase_config():
+    return {
+        "apiKey": os.getenv("FIREBASE_API_KEY", ""),
+        "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN", ""),
+        "projectId": os.getenv("FIREBASE_PROJECT_ID", ""),
+        "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET", ""),
+        "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID", ""),
+        "appId": os.getenv("FIREBASE_APP_ID", "")
+    }
 
 
 dashboard_dir = BASE_DIR / "dashboard"

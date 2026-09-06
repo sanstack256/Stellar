@@ -39,9 +39,11 @@
       <i class="dot"></i>
       <span id="engineStatus">Checking integrations…</span>
     </div>
-    <a href="/signin.html" class="btn btn-secondary" style="text-decoration: none;">
-      <span>Sign In</span>
-    </a>
+    <div id="navAuthSlot">
+      <a href="/signin.html" class="btn btn-secondary" style="text-decoration: none;">
+        <span>Sign In</span>
+      </a>
+    </div>
     <button class="btn btn-primary" onclick="focusAnalyzer()">
       <span>Launch Investigation</span>
     </button>
@@ -1368,6 +1370,34 @@ function renderReport(data) {
     $('footerMeta').textContent = `Deterministic analysis completed for ${(data.commit_id || 'HEAD').slice(0, 10)} · Data plane: ${data.data_plane || 'local'}`;
   }
 }
+</script>
+
+<script type="module">
+  import { onUserAuthStateChanged, signOutUser } from '/auth.js';
+
+  onUserAuthStateChanged(user => {
+    const slot = document.getElementById('navAuthSlot');
+    if (!slot) return;
+    if (user) {
+      const name = user.displayName || (user.email ? user.email.split('@')[0] : 'User');
+      slot.innerHTML = `
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-family:var(--font-mono); font-size:11px; color:var(--accent); padding:4px 8px; background:rgba(34,211,238,0.1); border:1px solid rgba(34,211,238,0.3); border-radius:var(--radius-sm);">${esc(name)}</span>
+          <button class="btn btn-secondary" style="padding:6px 12px; font-size:12px;" onclick="window.handleNavbarSignOut()"><span>Sign Out</span></button>
+        </div>
+      `;
+      window.handleNavbarSignOut = async () => {
+        await signOutUser();
+        window.location.reload();
+      };
+    } else {
+      slot.innerHTML = `
+        <a href="/signin.html" class="btn btn-secondary" style="text-decoration: none;">
+          <span>Sign In</span>
+        </a>
+      `;
+    }
+  });
 </script>
 </body>
 </html>
