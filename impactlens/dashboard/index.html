@@ -44,9 +44,9 @@
         <span>Sign In</span>
       </a>
     </div>
-    <button class="btn btn-primary" onclick="focusAnalyzer()">
-      <span>Launch Investigation</span>
-    </button>
+    <a href="/signup.html" class="btn btn-primary" id="navGetStartedBtn" style="text-decoration: none;">
+      <span>Get Started</span>
+    </a>
   </div>
 </header>
 
@@ -66,9 +66,9 @@
         </p>
 
         <div class="hero-cta-group">
-          <button class="btn btn-primary" onclick="focusAnalyzer()">
-            <span>Launch Investigation</span>
-          </button>
+          <a href="/signup.html" class="btn btn-primary" id="heroGetStartedBtn" style="text-decoration: none;">
+            <span>Get Started</span>
+          </a>
           <button class="btn btn-secondary" onclick="document.getElementById('problem').scrollIntoView({behavior:'smooth'})">
             <span>Inspect Propagation Path</span>
           </button>
@@ -1377,25 +1377,47 @@ function renderReport(data) {
 
   onUserAuthStateChanged(user => {
     const slot = document.getElementById('navAuthSlot');
-    if (!slot) return;
+    const heroBtn = document.getElementById('heroGetStartedBtn');
+    const navBtn = document.getElementById('navGetStartedBtn');
+
     if (user) {
-      const name = user.displayName || (user.email ? user.email.split('@')[0] : 'User');
-      slot.innerHTML = `
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span style="font-family:var(--font-mono); font-size:11px; color:var(--accent); padding:4px 8px; background:rgba(34,211,238,0.1); border:1px solid rgba(34,211,238,0.3); border-radius:var(--radius-sm);">${esc(name)}</span>
-          <button class="btn btn-secondary" style="padding:6px 12px; font-size:12px;" onclick="window.handleNavbarSignOut()"><span>Sign Out</span></button>
-        </div>
-      `;
-      window.handleNavbarSignOut = async () => {
-        await signOutUser();
-        window.location.reload();
-      };
+      if (heroBtn) {
+        heroBtn.href = "javascript:void(0)";
+        heroBtn.onclick = () => focusAnalyzer();
+      }
+      if (navBtn) {
+        navBtn.href = "javascript:void(0)";
+        navBtn.onclick = () => focusAnalyzer();
+      }
+      if (slot) {
+        const name = user.displayName || (user.email ? user.email.split('@')[0] : 'User');
+        slot.innerHTML = `
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-family:var(--font-mono); font-size:11px; color:var(--accent); padding:4px 8px; background:rgba(34,211,238,0.1); border:1px solid rgba(34,211,238,0.3); border-radius:var(--radius-sm);">${esc(name)}</span>
+            <button class="btn btn-secondary" style="padding:6px 12px; font-size:12px;" onclick="window.handleNavbarSignOut()"><span>Sign Out</span></button>
+          </div>
+        `;
+        window.handleNavbarSignOut = async () => {
+          await signOutUser();
+          window.location.reload();
+        };
+      }
     } else {
-      slot.innerHTML = `
-        <a href="/signin.html" class="btn btn-secondary" style="text-decoration: none;">
-          <span>Sign In</span>
-        </a>
-      `;
+      if (heroBtn) {
+        heroBtn.href = "/signup.html";
+        heroBtn.onclick = null;
+      }
+      if (navBtn) {
+        navBtn.href = "/signup.html";
+        navBtn.onclick = null;
+      }
+      if (slot) {
+        slot.innerHTML = `
+          <a href="/signin.html" class="btn btn-secondary" style="text-decoration: none;">
+            <span>Sign In</span>
+          </a>
+        `;
+      }
     }
   });
 </script>
