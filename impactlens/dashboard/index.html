@@ -1532,7 +1532,7 @@
           <div class="form-inputs">
             <div class="input-group">
               <label class="input-label">Repository Directory</label>
-              <input class="input-field" id="repoPath" value="sample_repo" placeholder="sample_repo" onchange="cachedCommits=null; lastFetchedRepo=null; getCommits();">
+              <input class="input-field" id="repoPath" value="" placeholder="path relative to IMPACTLENS_REPO_ROOT" onchange="cachedCommits=null; lastFetchedRepo=null; getCommits();">
             </div>
             <div class="input-group">
               <label class="input-label">GitHub URL (Optional)</label>
@@ -1540,7 +1540,7 @@
             </div>
             <div class="input-group">
               <label class="input-label">Commit SHA / Ref (or select from list)</label>
-              <input class="input-field" id="commitSha" list="commitDatalist" value="HEAD" placeholder="HEAD, SHA, or pick below">
+              <input class="input-field" id="commitSha" list="commitDatalist" value="" placeholder="SHA, ref, or pick below">
               <datalist id="commitDatalist"></datalist>
             </div>
             <button class="btn btn-primary" id="runBtn" onclick="runAnalysis()">
@@ -1549,12 +1549,6 @@
           </div>
 
           <div class="form-toolbar">
-            <div class="preset-chips">
-              <span style="font-family:'JetBrains Mono'; font-size:10px; color:var(--text-dim);">DEMO SCENARIOS:</span>
-              <button class="preset-chip" onclick="runPreset('Add order receipt')"><b>LOW</b> · Order Receipt</button>
-              <button class="preset-chip" onclick="runPreset('Fix fraud validation')"><b>MEDIUM</b> · Fraud Validation</button>
-              <button class="preset-chip" onclick="runPreset('quick fix for refund')"><b>HIGH</b> · Refund Core</button>
-            </div>
             <button class="import-btn-link" onclick="importRepo()">
               <span>＋ Clone &amp; Import from GitHub</span>
             </button>
@@ -1797,7 +1791,7 @@ async function importRepo() {
 let lastFetchedRepo = null;
 
 async function getCommits(forceRepo = null) {
-  const repo = forceRepo || $('repoPath').value.trim() || 'sample_repo';
+  const repo = forceRepo || $('repoPath').value.trim();
   if (cachedCommits && lastFetchedRepo === repo) return cachedCommits;
   const r = await fetch(`${API_BASE}/commits?repo_path=${encodeURIComponent(repo)}`);
   if (!r.ok) {
@@ -1834,35 +1828,12 @@ async function loadCommitsIntoPicker() {
   }
 }
 
-async function runPreset(match) {
-  // Demo scenarios are tied to sample_repo - auto-switch repository
-  $('repoPath').value = 'sample_repo';
-  importedRepo = null;
-  cachedCommits = null;
-  lastFetchedRepo = null;
-  $('errorBanner').style.display = 'none';
-  $('status').textContent = `Loading demo commit for "${match}" from sample_repo…`;
-  $('statusbar').classList.add('busy');
-  
-  try {
-    const cs = await getCommits('sample_repo');
-    const c = cs.find(v => v.subject && v.subject.toLowerCase().includes(match.toLowerCase()));
-    if (!c) throw new Error(`No commit found matching "${match}" in sample_repo`);
-    $('commitSha').value = c.sha;
-    $('repoHint').textContent = `Loaded scenario from sample_repo: ${c.subject}`;
-    await runAnalysis();
-  } catch (e) {
-    showError(e.message);
-  } finally {
-    $('statusbar').classList.remove('busy');
-  }
-}
 
 async function runAnalysis() {
   const btn = $('runBtn');
-  const repo_path = $('repoPath').value || 'sample_repo';
-  const repo_name = (importedRepo && importedRepo.repo_name) || repo_path.split('/').pop() || 'ecommerce-demo';
-  const commit = $('commitSha').value || 'HEAD';
+  const repo_path = $('repoPath').value;
+  const repo_name = (importedRepo && importedRepo.repo_name) || repo_path.split('/').pop();
+  const commit = $('commitSha').value;
 
   btn.disabled = true;
   $('statusbar').classList.add('busy');

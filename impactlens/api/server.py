@@ -6,10 +6,7 @@ FastAPI app implementing the request flow from the plan:
 Run:
     uvicorn api.server:app --reload --port 8000
 
-Then:
-    curl -X POST http://localhost:8000/analyze/<sha> \
-         -H "Content-Type: application/json" \
-         -d '{"repo_path": "sample_repo", "repo_name": "ecommerce-demo"}'
+Then call POST /analyze/<commit> with a configured repository path and name.
 
 The dashboard (dashboard/index.html) fetches this same endpoint.
 
@@ -40,14 +37,13 @@ from pydantic import BaseModel, field_validator
 
 from api.orchestrator import run_analysis, AnalysisError
 from repo_manager import clone as clone_repo, list_repos
-from integrations.entire import enabled as entire_enabled
+from integrations.entire import verify as verify_entire
 from integrations.databricks import enabled as databricks_enabled
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger("impactlens")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-DB_PATH = str(BASE_DIR / "data" / "impactlens.db")
 
 # Git refs/SHAs: letters, digits, dot, underscore, slash, hyphen -- but must
 # NOT start with '-' (that's how you'd smuggle a CLI flag into `git show <commit>`).
@@ -55,8 +51,10 @@ _SAFE_REF_RE = re.compile(r"^(?!-)[A-Za-z0-9._/\-]{1,200}$")
 
 app = FastAPI(title="ImpactLens", description="AI Codebase Impact Engine")
 
-_cors = [x.strip() for x in (os.getenv("CORS_ORIGINS", "*")).split(",") if x.strip()]
-app.add_middleware(CORSMiddleware, allow_origins=_cors, allow_methods=["GET","POST"], allow_headers=["*"], allow_credentials=False)
+_cors = [x.strip() for x in (os.getenv("CORS_ORIGINS", "")).split(",") if x.strip()]
+
+if _cors:
+    app.add_middleware(CORSMiddleware, allow_origins=_cors, allow_methods=["GET","POST"], allow_headers=["*"], allow_credentials=False)
 
 
 @app.middleware("http")
@@ -78,8 +76,9 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
 
 
 class AnalyzeRequest(BaseModel):
-    repo_path: str = "sample_repo"
-    repo_name: str = "ecommerce-demo"
+    repo_path: str
+    repo_name: str
+    semantic_base: str | None = None
 
     @field_validator("repo_name")
     @classmethod
@@ -145,7 +144,7 @@ def analyze(commit: str, body: AnalyzeRequest, x_api_key: str | None = Header(de
         raise HTTPException(400, f"{body.repo_path} is not a git repository")
 
     try:
-        report = run_analysis(str(repo_path), body.repo_name, commit, DB_PATH)
+        report = run_analysis(str(repo_path), body.repo_name, commit, semantic_base=body.semantic_base)
     except AnalysisError as exc:
         # Known, user-actionable failure (bad commit, empty diff, etc.)
         raise HTTPException(400, str(exc))
@@ -153,7 +152,7 @@ def analyze(commit: str, body: AnalyzeRequest, x_api_key: str | None = Header(de
 
 
 @app.get("/commits")
-def list_commits(repo_path: str = "sample_repo", limit: int = 20):
+def list_commits(repo_path: str, limit: int = 20):
     path = _resolve_repo_path(repo_path)
     if not path.exists() or not (path / ".git").exists():
         raise HTTPException(404, f"not a git repo: {repo_path}")
@@ -175,16 +174,16 @@ def list_commits(repo_path: str = "sample_repo", limit: int = 20):
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "data_plane": "databricks" if databricks_enabled() else "local-demo"}
+    return {"status": "ok", "data_plane": "databricks" if databricks_enabled() else "disabled", "entire_required": True}
 
 
 @app.get("/health/integrations")
 def integration_health():
-    result = {"entire": {"enabled": entire_enabled()}, "databricks": {"enabled": databricks_enabled()}}
-    if entire_enabled():
+    result = {"entire": {"required": True}, "databricks": {"enabled": databricks_enabled()}}
+    configured = os.getenv("IMPACTLENS_REPO_ROOT", "").strip()
+    if configured:
         try:
-            from integrations.entire import status
-            result["entire"].update(status(str(BASE_DIR / "sample_repo")))
+            result["entire"].update(verify_entire(configured))
         except Exception as exc:
             result["entire"]["error"] = str(exc)
     if databricks_enabled():

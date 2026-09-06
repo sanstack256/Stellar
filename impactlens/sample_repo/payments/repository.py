@@ -5,20 +5,16 @@ class PaymentRepository:
     def __init__(self):
         self._store = {}
 
-    def save(self, payment_id, payment):
-        self._store[payment_id] = payment
-        self._store.setdefault("_index", []).append(payment_id)
-        return payment
+    def save(self, payment_id, data):
+        self._store[payment_id] = dict(data)
+        return self._store[payment_id]
 
     def get(self, payment_id):
-        record = self._store.get(payment_id)
-        if record is None and payment_id in self._store.get("_index", []):
-            record = {}
-        return record
+        return self._store.get(payment_id)
 
     def mark_refunded(self, payment_id):
-        payment = self.get(payment_id)
-        if payment:
-            payment["status"] = "refunded"
-            self._store[payment_id] = payment
-        return payment
+        if payment_id not in self._store:
+            return None
+        self._store[payment_id]["status"] = "refunded"
+        self._store[payment_id]["refunded_at"] = 1234567890
+        return self._store[payment_id]

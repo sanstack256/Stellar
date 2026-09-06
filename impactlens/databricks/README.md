@@ -1,43 +1,24 @@
-# ImpactLens Databricks production path
+# Databricks data plane
 
-The target production path is:
+## Why Databricks is essential
+Databricks is not an archive for a finished report. It is the product's evidence memory: raw Entire/Git/checkpoint events are normalized into Delta tables, the unified corpus is indexed for AI Search, and the resulting evidence is used during impact analysis.
 
-**Entire Graph + Entire Checkpoints → Delta Lake → unified AI Search → deterministic risk → Databricks Model Serving → MLflow 3 evaluation/tracing.**
+## Data layers
+- Bronze: raw evidence with provenance.
+- Silver: entities, relationships, changes, checkpoints and tests.
+- Gold: impact paths, risk features, test recommendations, missed risks and analysis runs.
+- Knowledge corpus: retrieval documents linking each recommendation to evidence.
 
-## Tables
+## Provisioning
+Use the configured Databricks workspace, catalog and schema from the environment. Do not copy workspace URLs, tokens, index names or model endpoints into source.
 
-- `bronze_raw_events`: immutable-ish raw graph/checkpoint/git payloads
-- `silver_code_entities`: code symbols
-- `silver_code_relationships`: dependency edges
-- `silver_code_changes`: changed files/entities
-- `silver_checkpoints`: developer intent/history
-- `silver_tests`: test inventory
-- `gold_change_impact`: blast radius
-- `gold_risk_scores`: explainable risk features/score
-- `gold_test_recommendations`: ranked tests
-- `gold_missed_risks`: missed-risk candidates
-- `knowledge_documents`: unified retrieval corpus for AI Search
-- `analysis_runs`: provenance and model/data-plane metadata
+The Free Edition guide calls for one final shared workspace and a narrow deployed slice. This project uses a single SQL warehouse for the application data path and avoids any hardcoded cluster requirement.
 
-## Provision
+## AI Search
+Create a Delta Sync index over the configured knowledge table and set its endpoint/index names through environment variables. The application never assumes a particular catalog, schema, index or embedding endpoint.
 
-```bash
-python scripts/bootstrap_databricks.py
-```
+## Model
+Use the model-serving endpoint available in the final workspace. Its base URL, credentials and model name are environment configuration.
 
-Create a Delta Sync AI Search index over `knowledge_documents` using a Databricks-managed embedding endpoint (for example `databricks-gte-large-en`) and set:
-
-```bash
-DATABRICKS_AI_SEARCH_ENDPOINT=...
-DATABRICKS_AI_SEARCH_INDEX=main.impactlens.impactlens_knowledge
-```
-
-Databricks AI Search supports Delta Sync indexes and hybrid/semantic/full-text retrieval; the unified corpus lets ImpactLens retrieve code, tests, impact paths and historical checkpoints together.
-
-## LLM
-
-Set `DATABRICKS_LLM_ENABLED=true` and point `DATABRICKS_LLM_ENDPOINT` to a model-serving endpoint. The application uses the OpenAI-compatible Databricks serving interface.
-
-## MLflow
-
-Set `MLFLOW_ENABLED=true` when running under Managed MLflow 3. ImpactLens traces the analysis so retrieval, reasoning and output quality can be evaluated and monitored.
+## Evidence
+Record the workspace/app/endpoint URL, reproduction steps and data provenance in the final submission without exposing credentials.

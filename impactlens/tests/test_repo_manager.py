@@ -1,11 +1,9 @@
-from repo_manager import validate_url, _slug
-import pytest
+import os
+from repo_manager import validate_url
 
-def test_validate_public_https_url():
-    assert validate_url("https://github.com/example/project.git").startswith("https://")
-
-def test_reject_embedded_credentials():
-    with pytest.raises(ValueError): validate_url("https://user:pass@github.com/example/project.git")
-
-def test_slug_stable():
-    assert _slug("https://github.com/example/project.git").startswith("project-")
+def test_repo_urls_require_https_without_credentials():
+    assert validate_url("https://github.com/org/repo.git")
+    for url in ("http://github.com/org/repo.git","https://user:pass@github.com/org/repo.git"):
+        try: validate_url(url)
+        except ValueError: pass
+        else: raise AssertionError(url)

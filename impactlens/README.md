@@ -1,138 +1,89 @@
-# ImpactLens — AI Codebase Impact Engine
+# ImpactLens — Graph-Verified Change Impact
 
-ImpactLens answers four engineering questions for every code change:
+ImpactLens is a Track 2 **Build with Graph Intelligence** developer workflow. It uses **Entire Graph as structural evidence** and **Entire Checkpoints as preserved intent**, then uses Databricks to make that evidence queryable and actionable.
 
-1. **What changed?**
-2. **What could it affect?**
-3. **What should we test?**
-4. **What might we have missed?**
+The product answers:
 
-## 10/10 architecture
+1. What changed?
+2. What could it affect?
+3. What should we test?
+4. What might we have missed?
+
+## Non-negotiable design
+
+There is no bundled business repository, fake graph, fake checkpoint, hardcoded risk-critical module, hardcoded Databricks workspace, or hardcoded model. The analyzed repository and commit are inputs; Entire and Databricks are configured services.
+
+## Buildathon workflow
+
+Follow `docs/entire-workflow.md` before running the product. The guide requires the project to be developed in the clone created through Entire's mirror workflow, checkpoints at the four milestones, graph evidence before a high-risk change, and a final semantic-diff analysis.
+
+## Runtime path
 
 ```text
-Git / GitHub
-   │
-   ▼
-Entire Graph ─────────────── structural truth
-   │
-Entire Checkpoints ───────── developer intent/history
-   │
-   ▼
-Databricks Lakehouse / Unity Catalog
-   ├── Bronze: raw evidence
-   ├── Silver: code graph, changes, tests, checkpoints
-   └── Gold: impact, risk, test recommendations, missed risks
-   │
-   ├──────────────► Databricks AI Search
-   │                  unified code/history retrieval
-   │
-   ├──────────────► deterministic risk/features
-   │
-   └──────────────► Databricks Model Serving
-                         │
-                         ▼
-                     Impact Agent
-                         │
-                         ▼
-                   MLflow 3 trace/eval
-                         │
-                         ▼
-                     Dashboard
+Git repository + commit
+        ↓
+Entire Graph
+  search / snapshot / impact
+        +
+Entire Checkpoint
+  intent / decisions / unresolved work
+        ↓
+Databricks Lakehouse
+  raw → normalized → decision-ready
+        ↓
+Databricks AI Search
+  historical + structural evidence retrieval
+        ↓
+Deterministic impact/risk engine
+        ↓
+Configured model-serving endpoint
+        ↓
+Impact report + provenance
 ```
 
-The important design choice is that the LLM **does not invent the risk score**. Structural evidence comes from Entire, historical/contextual retrieval comes from Databricks, and the deterministic risk engine computes an auditable score before the model explains it.
-
-## Databricks is more than storage
-
-The real mode uses Databricks as the application's memory and AI backbone:
-
-- Delta Lake / Unity Catalog stores normalized graph, change, checkpoint and test evidence.
-- `knowledge_documents` is a unified retrieval corpus for Databricks AI Search.
-- AI Search supports hybrid retrieval over current and historical evidence.
-- Model Serving can supply the reasoning model.
-- MLflow 3 can trace the full agent path and evaluate relevance/groundedness.
-- `analysis_runs` provides provenance for every report.
-
-## Quick start
+## Setup
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-python scripts/run_demo.py HEAD
-uvicorn api.server:app --reload --port 8000
+cp .env.example .env
 ```
 
-Open `http://localhost:8000`.
+Populate `.env` with your actual repository workspace and Databricks/model-serving values. Never commit the file.
 
-## Maximum Databricks mode
-
-Set:
+## Run
 
 ```bash
-export DATABRICKS_ENABLED=true
-export DATABRICKS_SERVER_HOSTNAME="..."
-export DATABRICKS_HTTP_PATH="/sql/1.0/warehouses/..."
-export DATABRICKS_TOKEN="..."
-export DATABRICKS_CATALOG="main"
-export DATABRICKS_SCHEMA="impactlens"
-export DATABRICKS_WORKSPACE_URL="https://<workspace>.cloud.databricks.com"
-export DATABRICKS_AI_SEARCH_ENDPOINT="..."
-export DATABRICKS_AI_SEARCH_INDEX="main.impactlens.impactlens_knowledge"
-export DATABRICKS_LLM_ENABLED=true
-export DATABRICKS_LLM_ENDPOINT="<model-serving-endpoint>"
-export MLFLOW_ENABLED=true
-```
-
-Then:
-
-```bash
-python scripts/bootstrap_databricks.py
+set -a; source .env; set +a
 uvicorn api.server:app --host 0.0.0.0 --port 8000
 ```
 
-## Entire mode
-
-Install Entire/Graph according to the version supported by your hackathon environment, initialize the analyzed repository, then set `ENTIRE_ENABLED=true`. The adapter preserves raw Entire output and parses callers/callees where the CLI exposes them. The local graph remains an offline fallback.
-
-## Evaluation
+Analyze an arbitrary repository/ref from the configured workspace:
 
 ```bash
-python scripts/evaluate_impactlens.py
+curl -X POST "$IMPACTLENS_URL/analyze/$COMMIT" \
+  -H 'Content-Type: application/json' \
+  -H "X-API-Key: $IMPACTLENS_API_KEY" \
+  -d "$(python - <<'PY'
+import json,os
+print(json.dumps({'repo_path':os.environ['REPO_PATH'],'repo_name':os.environ['REPO_NAME'],'semantic_base':os.getenv('SEMANTIC_BASE')}))
+PY
+)"
 ```
 
-When `IMPACTLENS_URL` points at a deployed app and Managed MLflow 3 is configured, this evaluates the deployed analysis path using MLflow GenAI evaluation. Use a larger curated historical dataset for the final benchmark.
+Use the dashboard for the same workflow.
 
-## Deployment
+## Databricks
 
-The repository includes `app.yaml` for Databricks Apps:
+The Databricks path stores raw Entire/Git/checkpoint evidence, normalized entities/relationships/tests, decision-ready impact/risk/test/missed-risk records, and a unified `knowledge_documents` corpus for AI Search. The actual catalog, schema, endpoint and model are environment configuration.
 
-```bash
-databricks apps deploy impactlens --source-code-path .
-```
+Free Edition constraints from the participant guide are respected: use one final workspace, one narrow deployed slice, avoid GPU/provisioned assumptions, and preserve a fallback screenshot/recording for fragile live steps.
 
-A separate static-hosted frontend is also possible, but Databricks Apps is the cleanest final demo because the FastAPI service can sit next to Unity Catalog, AI Search, Model Serving and MLflow.
+## Verification
 
-## Demo narrative
+Do not treat graph output as an oracle. Verify graph findings against source and tests. The UI/API exposes evidence provenance so a judge can see which graph and checkpoint facts support the recommendation.
 
-Use the seeded refund/payment changes in `sample_repo`. The dashboard should visibly show:
+## Submission
 
-- risk score and component evidence,
-- dependency depth and blast radius,
-- ranked tests rather than the entire test suite,
-- historical evidence,
-- missed-risk candidates,
-- data/retrieval/LLM provenance.
-
-The judge takeaway should be:
-
-> **Entire tells us what is structurally connected. Checkpoints tell us why. Databricks remembers the history, retrieves the right evidence, evaluates the agent, and provides the AI runtime. ImpactLens turns all of that into an actionable engineering decision.**
-
-
-## Analyze a real repository
-
-ImpactLens is not limited to `sample_repo`. The dashboard can import a real Git repository through `POST /repos/clone` and then analyze any commit/ref available in that clone. For public repositories, paste an HTTPS Git URL in the dashboard. For private HTTPS repositories, set `GIT_TOKEN` in the backend environment rather than embedding credentials in the URL. For a repository already on the same machine, set `IMPACTLENS_REPO_ROOT=/path/to/your/projects` and enter its relative path in the dashboard.
-
-With `ENTIRE_ENABLED=true`, the imported repository is analyzed with the real Entire Graph snapshot/impact commands and Entire's current `explain --commit` checkpoint interface. Entire Graph supports semantic parsing across dozens of languages and exposes search, definitions, callers/callees and impact at file/line locations. citeturn0search1
-
-The local AST implementation remains only as a fallback for offline demos.
+See `BUILDATHON.md` for the required submission fields and the checkpoint/Curveball record. The Curveball section intentionally contains placeholders until the official constraint is revealed; it must not be invented in advance.

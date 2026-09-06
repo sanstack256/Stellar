@@ -1,15 +1,8 @@
-"""Customer notification helpers -- deliberately isolated, no other module
-depends on this yet, and it's fully unit tested. Used as the LOW-risk demo
-scenario: a self-contained change with no blast radius."""
-
+"""Notification and email delivery service."""
 
 def format_receipt_subject(order_id: str) -> str:
-    return f"Your receipt for order #{order_id}"
+    return f"[Receipt] Order #{order_id}"
 
-
-def send_receipt_email(order_id: str, email: str) -> dict:
-    return {
-        "to": email,
-        "subject": format_receipt_subject(order_id),
-        "sent": True,
-    }
+def send_receipt_email(order_id: str, email: str) -> bool:
+    subject = format_receipt_subject(order_id)
+    return bool(order_id and email)
