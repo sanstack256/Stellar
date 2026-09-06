@@ -1,0 +1,32 @@
+name: ImpactLens
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  impact: 
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run test suite
+        run: python -m pytest tests/ -v
+      - name: Run local smoke analysis
+        run: |
+          python scripts/run_demo.py HEAD > impactlens-report.json
+      - name: Upload ImpactLens report
+        uses: actions/upload-artifact@v4
+        with:
+          name: impactlens-report
+          path: impactlens-report.json
+
+# For the production demo, replace the smoke step with a POST to your
+# deployed /analyze/<sha> endpoint and publish the returned report as a PR comment.

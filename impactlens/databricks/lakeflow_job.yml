@@ -1,0 +1,15 @@
+resources:
+  jobs:
+    impactlens_refresh:
+      name: ImpactLens - ingest and refresh
+      tasks:
+        - task_key: bootstrap
+          spark_python_task:
+            python_file: ../scripts/bootstrap_databricks.py
+          existing_cluster_id: ${var.cluster_id}
+        - task_key: evaluate
+          depends_on:
+            - task_key: bootstrap
+          spark_python_task:
+            python_file: ../scripts/evaluate_impactlens.py
+          existing_cluster_id: ${var.cluster_id}

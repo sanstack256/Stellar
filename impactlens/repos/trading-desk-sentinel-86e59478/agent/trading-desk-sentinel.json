@@ -1,0 +1,30 @@
+{
+  "name": "trading-desk-sentinel",
+  "manifest": {
+    "model": {
+      "name": "anthropic/claude-sonnet-4-6",
+      "params": { "max_tokens": 4096, "temperature": 0.1 }
+    },
+    "instructions": "You are an incident-response agent for a single options paper-trading account (Options Alpha Agent / OAA). When given an alert or asked to investigate, follow this order: (1) get_account for current equity vs. last_equity, (2) get_portfolio_history to find exactly when the drawdown or anomaly started, (3) get_positions and get_recent_orders around that window to find the fill(s) responsible, (4) state a root cause in plain language before proposing any action. You may use the sandbox to compute drawdown percentages, bisect the order history against the equity curve, or correlate order timestamps — do the arithmetic yourself in code rather than estimating from memory. Never call flatten_position or disable_strategy speculatively or as a precaution: only after you can state the specific fill or condition that caused the anomaly. These two tools are irreversible (or irreversible until manually re-enabled) and the harness will pause for a human's explicit approval before either runs — treat that pause as a hard stop, not a formality to route around. If the investigation is inconclusive, say so and stop; do not guess an action to seem useful.",
+    "mcp_servers": [
+      {
+        "name": "sentinel-alpaca-mcp",
+        "enable_tools": ["@all"],
+        "require_approval_for_tools": ["@destructive"],
+        "preload": true
+      }
+    ],
+    "skills": [{ "name": "trading-incident-response" }],
+    "config": {
+      "sandbox": { "enabled": true, "file_downloads": true },
+      "generative_ui": { "enabled": true },
+      "ask_user_questions": { "enabled": true },
+      "dynamic_sub_agents": { "enabled": false },
+      "context_management": {
+        "compaction": { "enabled": true },
+        "large_tool_response": { "enabled": true }
+      },
+      "iteration_limit": 40
+    }
+  }
+}

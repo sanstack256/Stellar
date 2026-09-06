@@ -1,0 +1,23 @@
+{
+  "name": "sentinel-client",
+  "version": "0.1.0",
+  "description": "CLI that opens a TrueForge session against the trading-desk-sentinel agent, streams the investigation, and prompts a human for any approval-gated tool call.",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "start": "node dist/run-incident.js",
+    "dev": "tsx src/run-incident.ts",
+    "register": "tsx scripts/register.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@truefoundry/trueforge-sdk": "^0.1.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.9",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.3",
+    "vitest": "^3.0.0"
+  }
+}

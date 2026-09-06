@@ -1,0 +1,57 @@
+databases:
+  # Durable home for the disable_strategy kill-switch registry. Required
+  # because the mcp-server web service below runs on the free plan, whose
+  # filesystem is wiped on every restart, redeploy, or spin-down — a local
+  # strategy_state.json file would silently lose "disabled" entries.
+  #
+  # Free-plan caveat: Render deletes a free Postgres database 30 days after
+  # creation. This still fixes the reported bug (state no longer vanishes on
+  # every restart/redeploy/spin-down) but needs the database recreated and
+  # DATABASE_URL updated before day 30, or an upgrade to a paid plan, to stay
+  # durable long-term.
+  - name: sentinel-strategy-state
+    plan: free
+    databaseName: sentinel_strategy_state
+    user: sentinel
+
+services:
+  - type: web
+    name: sentinel-alpaca-mcp
+    runtime: node
+    plan: free
+    rootDir: .
+    buildCommand: npm install && npm run build --workspace mcp-server
+    startCommand: npm start --workspace mcp-server
+    healthCheckPath: /health
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+        # Required in deployment: the code now defaults to 127.0.0.1 (safe
+        # for local dev without a shared secret), which Render's health
+        # checker and external traffic cannot reach. This override is what
+        # makes the deployed service reachable again.
+      - key: ALPACA_API_KEY
+        sync: false
+      - key: ALPACA_SECRET_KEY
+        sync: false
+      - key: MCP_SHARED_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: sentinel-strategy-state
+          property: connectionString
+
+  - type: web
+    name: sentinel-ui
+    runtime: node
+    plan: free
+    rootDir: .
+    buildCommand: npm install && npm run build --workspace ui
+    startCommand: npm start --workspace ui
+    healthCheckPath: /health
+    envVars:
+      # Keep the TrueForge URL server-side. The UI talks to /truforge-api on
+      # its own origin, and this service proxies the SDK's streaming requests
+      # to TrueForge. That avoids browser CORS failures after deployment.
+      - key: TRUEFORGE_BASE_URL
+        sync: false
