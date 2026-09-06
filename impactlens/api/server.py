@@ -18,7 +18,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request, Header
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, field_validator
 
@@ -31,6 +31,13 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name
 logger = logging.getLogger("stellar")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+try:
+    import dotenv
+    dotenv.load_dotenv(BASE_DIR / ".env")
+    dotenv.load_dotenv(BASE_DIR.parent / ".env")
+except Exception:
+    pass
 
 _SAFE_REF_RE = re.compile(r"^(?!-)[A-Za-z0-9._/\-]{1,200}$")
 
@@ -171,6 +178,44 @@ def integration_health():
     return result
 
 
+@app.get("/api/config/firebase")
+def firebase_config():
+    if not os.getenv("FIREBASE_API_KEY"):
+        try:
+            import dotenv
+            dotenv.load_dotenv(BASE_DIR / ".env", override=True)
+            dotenv.load_dotenv(BASE_DIR.parent / ".env", override=True)
+        except Exception:
+            pass
+    return {
+        "apiKey": os.getenv("FIREBASE_API_KEY", ""),
+        "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN", ""),
+        "projectId": os.getenv("FIREBASE_PROJECT_ID", ""),
+        "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET", ""),
+        "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID", ""),
+        "appId": os.getenv("FIREBASE_APP_ID", ""),
+        "measurementId": os.getenv("FIREBASE_MEASUREMENT_ID", "")
+    }
+
+
 dashboard_dir = BASE_DIR / "dashboard"
 if dashboard_dir.exists():
+    @app.api_route("/signin", methods=["GET", "HEAD"], response_class=FileResponse)
+    @app.api_route("/sign-in", methods=["GET", "HEAD"], response_class=FileResponse)
+    @app.api_route("/login", methods=["GET", "HEAD"], response_class=FileResponse)
+    def signin_page():
+        return FileResponse(str(dashboard_dir / "signin.html"))
+
+    @app.api_route("/signup", methods=["GET", "HEAD"], response_class=FileResponse)
+    @app.api_route("/sign-up", methods=["GET", "HEAD"], response_class=FileResponse)
+    @app.api_route("/register", methods=["GET", "HEAD"], response_class=FileResponse)
+    def signup_page():
+        return FileResponse(str(dashboard_dir / "signup.html"))
+
+    @app.api_route("/dashboard", methods=["GET", "HEAD"], response_class=FileResponse)
+    @app.api_route("/dashboard/", methods=["GET", "HEAD"], response_class=FileResponse)
+    def dashboard_page():
+        return FileResponse(str(dashboard_dir / "index.html"))
+
     app.mount("/", StaticFiles(directory=str(dashboard_dir), html=True), name="dashboard")
+

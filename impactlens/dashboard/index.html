@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><polygon points='12,2 15,9 22,12 15,15 12,22 9,15 2,12 9,9' fill='%236366f1'/></svg>">
-  <link rel="stylesheet" href="globals.css">
+  <link rel="stylesheet" href="/globals.css">
 </head>
 <body>
 
@@ -39,9 +39,14 @@
       <i class="dot"></i>
       <span id="engineStatus">Checking integrations…</span>
     </div>
-    <button class="btn btn-primary" onclick="focusAnalyzer()">
-      <span>Launch Investigation</span>
-    </button>
+    <div id="navAuthSlot">
+      <a href="/signin.html" class="btn btn-secondary" style="text-decoration: none;">
+        <span>Sign In</span>
+      </a>
+    </div>
+    <a href="/signup.html" class="btn btn-primary" id="navGetStartedBtn" style="text-decoration: none;">
+      <span>Get Started</span>
+    </a>
   </div>
 </header>
 
@@ -61,9 +66,9 @@
         </p>
 
         <div class="hero-cta-group">
-          <button class="btn btn-primary" onclick="focusAnalyzer()">
-            <span>Launch Investigation</span>
-          </button>
+          <a href="/signup.html" class="btn btn-primary" id="heroGetStartedBtn" style="text-decoration: none;">
+            <span>Get Started</span>
+          </a>
           <button class="btn btn-secondary" onclick="document.getElementById('problem').scrollIntoView({behavior:'smooth'})">
             <span>Inspect Propagation Path</span>
           </button>
@@ -741,6 +746,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   checkIntegrations();
   getCommits('sample_repo');
+
+  if (window.location.pathname.startsWith('/dashboard') || window.location.hash === '#analyzer') {
+    setTimeout(focusAnalyzer, 120);
+  }
+});
+
+window.addEventListener('hashchange', () => {
+  if (window.location.hash === '#analyzer') {
+    focusAnalyzer();
+  }
 });
 
 function highlightChain(id) {
@@ -921,6 +936,7 @@ function scrollToTop() {
 function focusAnalyzer() {
   const el = $('analyzer');
   if (el) {
+    el.querySelectorAll('.reveal-item').forEach(item => item.classList.add('revealed'));
     el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     setTimeout(() => {
       const inp = $('repoPath');
@@ -1365,6 +1381,56 @@ function renderReport(data) {
     $('footerMeta').textContent = `Deterministic analysis completed for ${(data.commit_id || 'HEAD').slice(0, 10)} · Data plane: ${data.data_plane || 'local'}`;
   }
 }
+</script>
+
+<script type="module">
+  import { onUserAuthStateChanged, signOutUser } from '/auth.js';
+
+  onUserAuthStateChanged(user => {
+    const slot = document.getElementById('navAuthSlot');
+    const heroBtn = document.getElementById('heroGetStartedBtn');
+    const navBtn = document.getElementById('navGetStartedBtn');
+
+    if (user) {
+      if (heroBtn) {
+        heroBtn.href = "javascript:void(0)";
+        heroBtn.onclick = () => focusAnalyzer();
+      }
+      if (navBtn) {
+        navBtn.href = "javascript:void(0)";
+        navBtn.onclick = () => focusAnalyzer();
+      }
+      if (slot) {
+        const name = user.displayName || (user.email ? user.email.split('@')[0] : 'User');
+        slot.innerHTML = `
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-family:var(--font-mono); font-size:11px; color:var(--accent); padding:4px 8px; background:rgba(34,211,238,0.1); border:1px solid rgba(34,211,238,0.3); border-radius:var(--radius-sm);">${esc(name)}</span>
+            <button class="btn btn-secondary" style="padding:6px 12px; font-size:12px;" onclick="window.handleNavbarSignOut()"><span>Sign Out</span></button>
+          </div>
+        `;
+        window.handleNavbarSignOut = async () => {
+          await signOutUser();
+          window.location.reload();
+        };
+      }
+    } else {
+      if (heroBtn) {
+        heroBtn.href = "/signup.html";
+        heroBtn.onclick = null;
+      }
+      if (navBtn) {
+        navBtn.href = "/signup.html";
+        navBtn.onclick = null;
+      }
+      if (slot) {
+        slot.innerHTML = `
+          <a href="/signin.html" class="btn btn-secondary" style="text-decoration: none;">
+            <span>Sign In</span>
+          </a>
+        `;
+      }
+    }
+  });
 </script>
 </body>
 </html>
