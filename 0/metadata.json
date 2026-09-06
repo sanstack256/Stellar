@@ -31,6 +31,34 @@
   "session_metrics": {
     "turn_count": 1
   },
+  "summary": {
+    "intent": "Implement the Track 2 Noon Curveball so Entire Graph results are treated as evidence with explicit quality/confidence, never as a complete oracle when analysis is partial. Propagate that state through analysis, risk, reports, API/UI, persistence, and tests without changing fully resolved behavior.",
+    "outcome": "Graph evidence quality states (`confirmed`, `partial`, `unavailable`) were added and propagated across the affected product paths. A real malformed TypeScript fixture was used to test degraded graph analysis, focused tests and the product test suite passed, and no commit was created.",
+    "learnings": {
+      "repo": [
+        "The core production flow runs from Entire snapshot/impact/checkpoint through pipeline and orchestrator into risk scoring, LLM/report generation, API/dashboard output, and Databricks persistence.",
+        "The bundled `impactlens/repos/trading-desk-sentinel-86e59478/ui/src/App.tsx` parse failure is a real fixture that causes Entire's repository snapshot to be degraded.",
+        "Semantic diff is exposed separately by the orchestrator, but its dependent counts must be labeled heuristic when graph completeness is partial.",
+        "The repository's intended product test suite is `pytest -q tests`; unqualified `pytest -q` also discovers embedded fixture-repository tests."
+      ],
+      "code": [],
+      "workflow": [
+        "Use Entire Graph impact analysis before editing, then verify its findings against source and tests.",
+        "Treat parser failures and degraded snapshot metadata as explicit evidence-quality signals rather than silently accepting graph relationships as complete.",
+        "Use real tracked fixtures and the real local Entire CLI for incomplete-analysis tests instead of synthetic graph output.",
+        "Use Entire semantic-diff CLI flags `--base`, `--head`, and `--json`."
+      ]
+    },
+    "friction": [
+      "An unqualified `pytest -q` collected embedded `sample_repo/tests` and failed import collection because that standalone fixture's packages were not on `PYTHONPATH`.",
+      "The graph-wide snapshot was degraded by a TypeScript parse failure, so graph relationships could not be presented as fully confirmed."
+    ],
+    "open_items": [
+      "Do not commit until user review.",
+      "The embedded sample repository's test-discovery/import configuration could be isolated or configured if full root-level pytest collection is desired.",
+      "Source inspection and focused tests remain the required verification path whenever Entire reports partial or unavailable analysis."
+    ]
+  },
   "initial_attribution": {
     "calculated_at": "2026-09-06T08:18:50.113849176Z",
     "agent_lines": 149,
