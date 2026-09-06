@@ -1,0 +1,861 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stellar — AI Codebase Impact &amp; Risk Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><polygon points='12,2 15,9 22,12 15,15 12,22 9,15 2,12 9,9' fill='%236366f1'/></svg>">
+  <link rel="stylesheet" href="/globals.css">
+</head>
+<body>
+
+<div class="app-container">
+  <aside class="sidebar">
+    <a href="#" class="brand-box" onclick="scrollToTop(); return false;">
+      <div class="brand-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <polygon points="12,2 15,9 22,12 15,15 12,22 9,15 2,12 9,9"/>
+        </svg>
+      </div>
+      <div class="brand-meta">
+        <h1>Stellar</h1>
+        <span>IMPACT ENGINE</span>
+      </div>
+    </a>
+
+    <div class="nav-group-title">WORKSPACE</div>
+    <nav class="nav-menu">
+      <button class="nav-item active" onclick="scrollToTop()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 12l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+        <span>Executive Overview</span>
+      </button>
+      <button class="nav-item" onclick="focusAnalyzer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        <span>Analyze Change</span>
+      </button>
+      <button class="nav-item" onclick="focusSection('highRiskAlert')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+        <span>Critical Alerts</span>
+      </button>
+      <button class="nav-item" onclick="focusSection('blastRadiusSection')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="6" cy="12" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 11l8-4M8 13l8 4"/></svg>
+        <span>Blast Radius Flow</span>
+      </button>
+      <button class="nav-item" onclick="focusSection('testPlanSection')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="m5 12 4 4L19 6"/></svg>
+        <span>Targeted Test Plan</span>
+      </button>
+    </nav>
+
+    <div class="nav-group-title">INFRASTRUCTURE</div>
+    <nav class="nav-menu">
+      <button class="nav-item" onclick="focusSection('provenanceSection')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        <span>Evidence Lakehouse</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="/" class="nav-item" style="text-decoration:none; margin-bottom:8px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 12l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+        <span>Landing Page</span>
+      </a>
+      <div class="engine-badge">
+        <div class="engine-header">
+          <span>DATA PLANE</span>
+          <i class="status-pulse-dot"></i>
+        </div>
+        <div class="engine-status-text" id="engineStatus">Checking integrations…</div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-viewport">
+    <header class="top-header">
+      <div class="breadcrumbs">
+        <span class="breadcrumb-brand">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,12 15,15 12,22 9,15 2,12 9,9"/></svg>
+          Stellar Engine
+        </span>
+        <span>/</span>
+        <b>Blast Radius &amp; Risk Intelligence</b>
+      </div>
+      <div class="header-actions">
+        <div id="topHeaderAuthSlot" style="display:flex; align-items:center; gap:8px;"></div>
+        <button class="btn btn-ghost" onclick="loadCommitsIntoPicker()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="4"/><path d="M1.05 12H7M17.01 12h5.95"/></svg>
+          Pick Commit
+        </button>
+        <button class="btn btn-primary" onclick="focusAnalyzer()">
+          <span>＋</span> New Analysis
+        </button>
+      </div>
+    </header>
+
+    <div class="content-wrapper">
+      <section class="hero-banner">
+        <div>
+          <div class="hero-eyebrow">
+            <span class="hero-eyebrow-dot"></span>
+            DETERMINISTIC CODE INTELLIGENCE
+          </div>
+          <h1 class="hero-title">Know the blast radius before you merge.</h1>
+          <p class="hero-desc">Stellar analyzes structural call graphs, developer intent checkpoints, and historical incident memory to evaluate every commit with precision.</p>
+        </div>
+        <div class="pipeline-card">
+          <div class="pipeline-title">
+            <span>PIPELINE ARCHITECTURE</span>
+            <span>END-TO-END AUDIT</span>
+          </div>
+          <div class="pipeline-steps">
+            <div class="pipe-node active">1. GRAPH</div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-node active">2. MEMORY</div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-node active">3. RISK</div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-node active">4. TESTS</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="four-questions-grid">
+        <div class="question-card">
+          <span class="question-num">01 / CHANGE</span>
+          <h3 class="question-title">What changed?</h3>
+          <p class="question-desc">Synthesizes file diffs, hunk line-ranges, and AST code entity definitions touched in the commit.</p>
+        </div>
+        <div class="question-card">
+          <span class="question-num">02 / CONNECTIONS</span>
+          <h3 class="question-title">What could it affect?</h3>
+          <p class="question-desc">Traverses dependency call graphs to calculate direct callers and transitive propagation depth.</p>
+        </div>
+        <div class="question-card">
+          <span class="question-num">03 / TESTS</span>
+          <h3 class="question-title">What should we test?</h3>
+          <p class="question-desc">Ranks the existing test suite by token relevance and caller proximity rather than running everything.</p>
+        </div>
+        <div class="question-card">
+          <span class="question-num">04 / EVIDENCE</span>
+          <h3 class="question-title">What might we have missed?</h3>
+          <p class="question-desc">Cross-references historical post-mortem checkpoints and surfaces unmonitored downstream gaps.</p>
+        </div>
+      </section>
+
+      <section class="analyzer-panel" id="analyzer">
+        <div class="panel-header">
+          <div class="panel-title">
+            <h2>Analyze Repository &amp; Commit</h2>
+            <p>DETERMINE BLAST RADIUS, TEST IMPACT &amp; RISK LEVEL</p>
+          </div>
+          <div class="live-chip">● ACTIVE ENGINE</div>
+        </div>
+
+        <div class="analyzer-form">
+          <div class="form-inputs">
+            <div class="input-group">
+              <label class="input-label" for="repoPath">Repository Directory</label>
+              <input class="input-field" id="repoPath" value="sample_repo" placeholder="sample_repo or relative path" onchange="cachedCommits=null; lastFetchedRepo=null; getCommits();">
+            </div>
+            <div class="input-group">
+              <label class="input-label" for="repoUrl">GitHub URL (Optional)</label>
+              <input class="input-field" id="repoUrl" placeholder="https://github.com/org/repo.git">
+            </div>
+            <div class="input-group">
+              <label class="input-label" for="commitSha">Commit SHA / Ref</label>
+              <input class="input-field" id="commitSha" list="commitDatalist" value="HEAD" placeholder="HEAD, SHA, or pick below">
+              <datalist id="commitDatalist"></datalist>
+            </div>
+            <button class="btn btn-primary" id="runBtn" onclick="runAnalysis()">
+              <span>Analyze Change</span>
+            </button>
+          </div>
+
+          <div class="form-toolbar">
+            <div class="preset-chips">
+              <span class="preset-chips-label">DEMO SCENARIOS:</span>
+              <button class="preset-chip chip-low" id="presetLow" onclick="runPreset('Add order receipt')">
+                <b>LOW</b> · Order Receipt
+              </button>
+              <button class="preset-chip chip-med" id="presetMed" onclick="runPreset('Fix fraud validation')">
+                <b>MEDIUM</b> · Fraud Validation
+              </button>
+              <button class="preset-chip chip-high" id="presetHigh" onclick="runPreset('quick fix for refund')">
+                <b>HIGH</b> · Refund Core
+              </button>
+            </div>
+            <button class="import-btn-link" onclick="importRepo()">
+              <span>＋ Clone &amp; Import from GitHub</span>
+            </button>
+          </div>
+          <div id="repoHint"></div>
+        </div>
+
+        <div class="status-strip" id="statusbar">
+          <div class="status-left">
+            <i class="status-indicator"></i>
+            <span id="status">Ready to analyze code changes.</span>
+          </div>
+          <span id="runMeta"></span>
+        </div>
+
+        <div id="errorBanner" class="error-banner-box"></div>
+
+        <div id="emptyState" class="empty-state">
+          <div class="empty-icon-orb">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>
+          </div>
+          <strong>No commit analyzed yet</strong>
+          <span>Select a demo scenario above or enter a commit ref to inspect risk factors, blast radius, test priorities, and missed-risk gaps.</span>
+        </div>
+
+        <div id="reportContainer" class="report-container">
+          <div class="report-executive-banner">
+            <div>
+              <div class="change-meta-row">
+                <span class="sha-pill" id="commitPill" onclick="copyCommit()" title="Click to copy SHA">SHA</span>
+                <span class="author-pill" id="commitAuthor">Author</span>
+              </div>
+              <h2 class="report-commit-title" id="commitSubject">Commit Title</h2>
+              <p class="report-what-changed" id="whatChangedText">Description</p>
+              <div class="report-intent-box is-hidden" id="intentBox"></div>
+              <div class="action-row">
+                <button class="btn btn-ghost" onclick="copyMarkdownSummary()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  Copy PR Summary
+                </button>
+                <button class="btn btn-ghost" onclick="downloadReportJson()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Export JSON
+                </button>
+              </div>
+            </div>
+
+            <div class="risk-gauge-card" id="riskGaugeCard">
+              <span class="gauge-label">Impact Score</span>
+              <div class="gauge-score" id="riskScoreVal">0</div>
+              <span class="risk-badge-tag" id="riskBandBadge">MEDIUM RISK</span>
+            </div>
+          </div>
+
+          <div class="high-risk-alert-card" id="highRiskAlert">
+            <div class="alert-icon-wrap">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+            </div>
+            <div class="alert-content">
+              <h3 id="highRiskAlertTitle">High Risk Impact Detected</h3>
+              <p id="highRiskAlertText">This commit touches core dependencies with high propagation depth. Targeted test execution and missed-risk reviews are required before merging.</p>
+            </div>
+          </div>
+
+          <div class="metrics-bar">
+            <div class="metric-card">
+              <span class="metric-value" id="mBlastCount">0</span>
+              <span class="metric-label">Affected Entities</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-value" id="mDepthSignal">0</span>
+              <span class="metric-label">Dependency Depth</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-value" id="mCoverageGap">0%</span>
+              <span class="metric-label">Coverage Gap</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-value" id="mHistoryHits">0</span>
+              <span class="metric-label">Historical Matches</span>
+            </div>
+          </div>
+
+          <div class="risk-breakdown-panel">
+            <div class="breakdown-title">
+              <span>AUDITABLE RISK FACTOR BREAKDOWN</span>
+              <span id="breakdownMeta">7 DIMENSIONS</span>
+            </div>
+            <div class="breakdown-grid" id="breakdownGrid"></div>
+          </div>
+
+          <div class="report-main-grid">
+            <div class="report-column">
+              <div class="dashboard-section" id="blastRadiusSection">
+                <div class="section-title-bar">
+                  <h3>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="6" cy="12" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 11l8-4M8 13l8 4"/></svg>
+                    Blast Radius Visualizer
+                  </h3>
+                  <span class="section-tag" id="blastGraphMeta">0 ENTITIES</span>
+                </div>
+                <div class="graph-viewport">
+                  <div class="graph-nodes-flow" id="graphFlow"></div>
+                </div>
+                <div class="graph-footer-legend">
+                  <div class="legend-item"><div class="legend-box"></div><span>Root Changed Entity</span></div>
+                  <div class="legend-item"><span>→ Downstream Caller</span></div>
+                </div>
+              </div>
+
+              <div class="dashboard-section" id="testPlanSection">
+                <div class="section-title-bar">
+                  <h3>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="m5 12 4 4L19 6"/></svg>
+                    Targeted Test Recommendations
+                  </h3>
+                  <span class="section-tag">RANKED RELEVANCE</span>
+                </div>
+                <div class="tests-list" id="testsList"></div>
+              </div>
+            </div>
+
+            <div class="report-column">
+              <div class="dashboard-section" id="missedRisksSection">
+                <div class="section-title-bar">
+                  <h3 class="text-warning">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+                    What You May Have Missed
+                  </h3>
+                  <span class="section-tag">GAP DETECTION</span>
+                </div>
+                <div class="missed-risks-scroll" id="missedRisksList"></div>
+              </div>
+
+              <div class="dashboard-section" id="scoreReasonsSection">
+                <div class="section-title-bar">
+                  <h3>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                    Deterministic Scoring Reasons
+                  </h3>
+                  <span class="section-tag">AUDITABLE FACTORS</span>
+                </div>
+                <div class="reasons-list" id="reasonsList"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-section" id="provenanceSection">
+            <div class="section-title-bar">
+              <h3>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                Evidence &amp; Provenance Tracking
+              </h3>
+              <span class="section-tag">LAKEHOUSE TRACEABILITY</span>
+            </div>
+            <div class="provenance-grid" id="provenanceGrid"></div>
+          </div>
+
+          <footer class="report-footer">
+            <span>Stellar Engine · Evidence-grounded impact analysis</span>
+            <span id="footerMeta"></span>
+          </footer>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+const API_BASE = window.location.origin;
+let cachedCommits = null;
+let importedRepo = null;
+let lastAnalyzedSha = '';
+let currentReportData = null;
+
+const $ = id => document.getElementById(id);
+const esc = s => {
+  const d = document.createElement('div');
+  d.textContent = String(s ?? '');
+  return d.innerHTML;
+};
+const short = s => {
+  const str = String(s ?? '');
+  const parts = str.split('.');
+  return parts.length > 2 ? parts.slice(-2).join('.') : str;
+};
+
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function focusAnalyzer() {
+  $('analyzer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  setTimeout(() => $('repoPath').focus(), 300);
+}
+
+function focusSection(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.style.borderColor = 'var(--primary)';
+    setTimeout(() => { el.style.borderColor = ''; }, 1500);
+  }
+}
+
+async function loadEngineStatus() {
+  try {
+    const r = await fetch(`${API_BASE}/health/integrations`);
+    const x = await r.json();
+    $('engineStatus').textContent = `Entire: ${x.entire && x.entire.enabled ? 'Live' : 'Sim/Demo'} · Databricks: ${x.databricks && x.databricks.enabled ? 'Connected' : 'Local Stand-in'}`;
+  } catch (e) {
+    $('engineStatus').textContent = 'Local Stand-in Engine Active';
+  }
+}
+
+async function importRepo() {
+  const url = $('repoUrl').value.trim();
+  if (!url) {
+    $('repoHint').textContent = 'Please enter an HTTPS Git repository URL above first.';
+    return;
+  }
+  $('repoHint').textContent = 'Cloning and indexing repository…';
+  try {
+    const r = await fetch(`${API_BASE}/repos/clone`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ repo_url: url })
+    });
+    const x = await r.json();
+    if (!r.ok) throw new Error(x.detail || 'Repository import failed');
+    importedRepo = x;
+    $('repoPath').value = x.repo_path;
+    $('commitSha').value = x.head;
+    $('repoHint').textContent = `Successfully cloned ${x.repo_name} (${(x.head || '').slice(0, 10)})`;
+    cachedCommits = null;
+    await loadEngineStatus();
+  } catch (e) {
+    $('repoHint').textContent = `Import error: ${e.message}`;
+  }
+}
+
+let lastFetchedRepo = null;
+
+async function getCommits(forceRepo = null) {
+  const repo = forceRepo || $('repoPath').value.trim() || 'sample_repo';
+  if (cachedCommits && lastFetchedRepo === repo) return cachedCommits;
+  const r = await fetch(`${API_BASE}/commits?repo_path=${encodeURIComponent(repo)}`);
+  if (!r.ok) {
+    let err = await r.text();
+    try { err = JSON.parse(err).detail || err; } catch(_) {}
+    throw new Error(err || 'Failed to fetch commits');
+  }
+  const x = await r.json();
+  cachedCommits = x.commits || [];
+  lastFetchedRepo = repo;
+  updateCommitDatalist(cachedCommits);
+  return cachedCommits;
+}
+
+function updateCommitDatalist(commits) {
+  const dl = $('commitDatalist');
+  if (!dl) return;
+  dl.innerHTML = commits.map(c => `<option value="${c.sha}">${c.subject}</option>`).join('');
+}
+
+async function loadCommitsIntoPicker() {
+  $('repoHint').textContent = 'Fetching repository commits…';
+  try {
+    const cs = await getCommits();
+    if (cs.length) {
+      $('commitSha').value = cs[0].sha;
+      $('repoHint').textContent = `Latest commit (${cs[0].sha.slice(0, 10)}): ${cs[0].subject}`;
+      focusAnalyzer();
+    } else {
+      $('repoHint').textContent = 'No commits found in this repository.';
+    }
+  } catch (e) {
+    $('repoHint').textContent = `Error fetching commits: ${e.message}`;
+  }
+}
+
+function highlightActivePreset(match) {
+  ['presetLow', 'presetMed', 'presetHigh'].forEach(id => {
+    const el = $(id);
+    if (el) el.classList.remove('active');
+  });
+  if (match.includes('receipt')) $('presetLow')?.classList.add('active');
+  if (match.includes('fraud')) $('presetMed')?.classList.add('active');
+  if (match.includes('refund')) $('presetHigh')?.classList.add('active');
+}
+
+async function runPreset(match) {
+  highlightActivePreset(match.toLowerCase());
+  $('repoPath').value = 'sample_repo';
+  importedRepo = null;
+  cachedCommits = null;
+  lastFetchedRepo = null;
+  $('errorBanner').style.display = 'none';
+  $('status').textContent = `Loading demo commit for "${match}" from sample_repo…`;
+  $('statusbar').classList.add('busy');
+  
+  try {
+    const cs = await getCommits('sample_repo');
+    const c = cs.find(v => v.subject && v.subject.toLowerCase().includes(match.toLowerCase()));
+    if (!c) throw new Error(`No commit found matching "${match}" in sample_repo`);
+    $('commitSha').value = c.sha;
+    $('repoHint').textContent = `Loaded scenario from sample_repo: ${c.subject}`;
+    await runAnalysis();
+  } catch (e) {
+    showError(e.message);
+  } finally {
+    $('statusbar').classList.remove('busy');
+  }
+}
+
+async function runAnalysis() {
+  const btn = $('runBtn');
+  const repo_path = $('repoPath').value.trim() || 'sample_repo';
+  const repo_name = (importedRepo && importedRepo.repo_name) || repo_path.split('/').pop() || 'ecommerce-demo';
+  const commit = $('commitSha').value.trim() || 'HEAD';
+
+  btn.disabled = true;
+  $('statusbar').classList.add('busy');
+  $('status').textContent = 'Traversing call graph · querying memory · computing risk scores…';
+  $('runMeta').textContent = 'analysis in progress';
+  $('errorBanner').style.display = 'none';
+
+  try {
+    const r = await fetch(`${API_BASE}/analyze/${encodeURIComponent(commit)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ repo_path, repo_name })
+    });
+    if (!r.ok) {
+      let errMsg = r.statusText;
+      try {
+        const errBody = await r.json();
+        errMsg = errBody.detail || JSON.stringify(errBody);
+      } catch (_) {
+        errMsg = await r.text();
+      }
+      throw new Error(errMsg || 'Analysis request failed');
+    }
+    const data = await r.json();
+    currentReportData = data;
+    renderReport(data);
+    const sub = (data.commit && data.commit.subject) ? data.commit.subject : 'Analysis ready';
+    $('status').textContent = `Analysis complete · ${sub}`;
+    const shaShort = (data.commit && data.commit.sha) ? data.commit.sha.slice(0, 10) : '';
+    const author = (data.commit && data.commit.author) ? data.commit.author : '';
+    $('runMeta').textContent = `${shaShort} (${author})`;
+  } catch (e) {
+    showError(e.message);
+    $('status').textContent = 'Analysis failed';
+    $('runMeta').textContent = '';
+  } finally {
+    btn.disabled = false;
+    $('statusbar').classList.remove('busy');
+  }
+}
+
+function showError(msg) {
+  $('errorBanner').style.display = 'block';
+  $('errorBanner').innerHTML = `<b>Error:</b> ${esc(msg)}`;
+  $('reportContainer').style.display = 'none';
+  $('emptyState').style.display = 'none';
+}
+
+function copyCommit() {
+  if (lastAnalyzedSha) {
+    navigator.clipboard.writeText(lastAnalyzedSha);
+    const pill = $('commitPill');
+    if (pill) {
+      pill.textContent = 'Copied ✓';
+      setTimeout(() => { pill.textContent = `SHA: ${lastAnalyzedSha.slice(0, 10)}`; }, 1500);
+    }
+  }
+}
+
+function copyText(text, btnEl) {
+  navigator.clipboard.writeText(text);
+  if (btnEl) {
+    const orig = btnEl.textContent;
+    btnEl.textContent = 'Copied ✓';
+    setTimeout(() => { btnEl.textContent = orig; }, 1500);
+  }
+}
+
+function copyMarkdownSummary() {
+  if (!currentReportData) return;
+  const d = currentReportData;
+  const risk = d.risk || {};
+  const report = d.report || {};
+  const sha = (d.commit && d.commit.sha) ? d.commit.sha.slice(0, 8) : 'HEAD';
+  const md = [
+    `### Stellar Impact & Risk Report (${sha})`,
+    `**Risk Score:** ${risk.risk_score || 0}/100 (${risk.risk_band || 'UNKNOWN'})`,
+    `**Summary:** ${report.what_changed || 'Code change'}`,
+    '',
+    `#### Blast Radius (${(d.affected_entities || []).length} affected entities):`,
+    ...(d.affected_entities || []).map(a => `- \`${a.entity_id}\` (depth ${a.depth || 1})`),
+    '',
+    `#### Recommended Tests:`,
+    ...(d.recommended_tests || []).map(t => `- [ ] \`${t.test_id}\` (${t.priority}) - ${t.reason}`),
+    '',
+    `#### Potential Missed Risks:`,
+    ...(d.candidate_missed_risks || []).map(m => `- \`${m.entity_id}\`: ${m.reason}`),
+    '',
+    `*Generated by Stellar AI Code Engine*`
+  ].join('\n');
+  navigator.clipboard.writeText(md);
+  alert('PR Summary copied to clipboard!');
+}
+
+function downloadReportJson() {
+  if (!currentReportData) return;
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentReportData, null, 2));
+  const dlAnchor = document.createElement('a');
+  dlAnchor.setAttribute("href", dataStr);
+  const sha = (currentReportData.commit && currentReportData.commit.sha) ? currentReportData.commit.sha.slice(0, 8) : 'report';
+  dlAnchor.setAttribute("download", `stellar_report_${sha}.json`);
+  dlAnchor.click();
+}
+
+function renderReport(data) {
+  $('errorBanner').style.display = 'none';
+  $('emptyState').style.display = 'none';
+  $('reportContainer').style.display = 'flex';
+
+  const commit = data.commit || {};
+  const risk = data.risk || {};
+  const report = data.report || {};
+  const band = String(risk.risk_band || 'MEDIUM').toUpperCase();
+  const score = risk.risk_score != null ? Math.round(Number(risk.risk_score) * 10) / 10 : 0;
+  lastAnalyzedSha = commit.sha || '';
+
+  const pill = $('commitPill');
+  if (pill) pill.textContent = `SHA: ${lastAnalyzedSha ? lastAnalyzedSha.slice(0, 10) : 'HEAD'}`;
+  const authorEl = $('commitAuthor');
+  if (authorEl) authorEl.textContent = `${commit.author || 'Author'} · ${commit.date || 'Recent'}`;
+  const subjectEl = $('commitSubject');
+  if (subjectEl) subjectEl.textContent = commit.subject || 'Code Change Analysis';
+  const descEl = $('whatChangedText');
+  if (descEl) descEl.textContent = report.what_changed || (data.changed_files ? `Files changed: ${data.changed_files.join(', ')}` : 'No file changes detected.');
+
+  const intentBox = $('intentBox');
+  if (intentBox) {
+    if (data.developer_checkpoint && (data.developer_checkpoint.checkpoint_summary || data.developer_checkpoint.prompt)) {
+      const intent = data.developer_checkpoint.checkpoint_summary || data.developer_checkpoint.prompt;
+      intentBox.classList.remove('is-hidden');
+      intentBox.innerHTML = `<b>Developer Intent:</b> ${esc(intent)}`;
+    } else {
+      intentBox.classList.add('is-hidden');
+    }
+  }
+
+  const gaugeCard = $('riskGaugeCard');
+  if (gaugeCard) gaugeCard.className = `risk-gauge-card ${band}`;
+  const scoreVal = $('riskScoreVal');
+  if (scoreVal) {
+    scoreVal.textContent = score;
+    scoreVal.style.color = band === 'CRITICAL' ? 'var(--error-strong)' : band === 'HIGH' ? 'var(--error)' : band === 'MEDIUM' ? 'var(--warning)' : 'var(--success)';
+  }
+  const bandBadge = $('riskBandBadge');
+  if (bandBadge) {
+    bandBadge.className = `risk-badge-tag ${band}`;
+    bandBadge.textContent = `${band} RISK`;
+  }
+
+  const alertCard = $('highRiskAlert');
+  if (alertCard) {
+    if (band === 'HIGH' || band === 'CRITICAL' || score >= 60) {
+      alertCard.classList.add('show');
+      const t = $('highRiskAlertTitle');
+      if (t) t.textContent = `${band} RISK LEVEL DETECTED (${score}/100)`;
+      const p = $('highRiskAlertText');
+      if (p) p.textContent = `This commit touches core dependencies with high propagation depth. High-priority test executions and missed-risk reviews are required before merging.`;
+    } else {
+      alertCard.classList.remove('show');
+    }
+  }
+
+  const affected = data.affected_entities || [];
+  const comp = risk.components || {};
+  let depth = 0;
+  if (comp.dependency_depth != null) {
+    depth = comp.dependency_depth;
+  } else if (affected.length > 0) {
+    depth = Math.max(...affected.map(a => a.depth || 1));
+  }
+  if ($('mBlastCount')) $('mBlastCount').textContent = affected.length;
+  if ($('mDepthSignal')) $('mDepthSignal').textContent = depth;
+  if ($('mCoverageGap')) $('mCoverageGap').textContent = `${comp.coverage_gap != null ? comp.coverage_gap : 0}%`;
+  if ($('mHistoryHits')) $('mHistoryHits').textContent = (data.historical_checkpoints_matched || []).length;
+
+  const bGrid = $('breakdownGrid');
+  if (bGrid) {
+    const keys = [
+      { k: 'centrality', label: 'Call Centrality' },
+      { k: 'dependents', label: 'Downstream Blast' },
+      { k: 'criticality', label: 'Module Criticality' },
+      { k: 'coverage_gap', label: 'Test Coverage Gap' },
+      { k: 'historical_frequency', label: 'Historical Incidents' },
+      { k: 'checkpoint_uncertainty', label: 'Intent Uncertainty' },
+      { k: 'dependency_depth', label: 'Propagation Depth' }
+    ];
+    bGrid.innerHTML = keys.map(item => {
+      const val = comp[item.k] != null ? Math.round(comp[item.k]) : 0;
+      return `
+        <div class="breakdown-item">
+          <div class="breakdown-item-header">
+            <span>${item.label}</span>
+            <b>${val}%</b>
+          </div>
+          <div class="breakdown-bar-track">
+            <div class="breakdown-bar-fill" style="--bar-w:${Math.min(val, 100)}%;"></div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  const changed = data.changed_entities || [];
+  const flowNodes = [];
+  changed.forEach(c => flowNodes.push({ name: c, isRoot: true }));
+  affected.forEach(a => {
+    if (!changed.includes(a.entity_id)) {
+      flowNodes.push({ name: a.entity_id, isRoot: false, depth: a.depth || 1 });
+    }
+  });
+
+  const graphFlowHtml = flowNodes.length ? flowNodes.map((n, i) => `
+    <div class="node-row-item">
+      ${i > 0 ? '<div class="node-arrow">↳</div>' : ''}
+      <div class="node-box ${n.isRoot ? 'root-node' : ''}" onclick="copyText('${esc(n.name)}', this)" title="Click to copy full symbol path: ${esc(n.name)}">
+        <div>
+          <div class="node-type">${n.isRoot ? 'ROOT CHANGED ENTITY' : `DEPTH ${n.depth || 1} CALLER`}</div>
+          <div class="node-symbol">${esc(short(n.name))}</div>
+        </div>
+        <span class="node-depth-pill">${n.isRoot ? 'MODIFIED' : `DEPTH ${n.depth || 1}`}</span>
+      </div>
+    </div>
+  `).join('') : '<div class="empty-muted-text">No downstream callers affected.</div>';
+
+  if ($('graphFlow')) $('graphFlow').innerHTML = graphFlowHtml;
+  if ($('blastGraphMeta')) $('blastGraphMeta').textContent = `${affected.length} ENTITIES AFFECTED`;
+
+  const candidateMissed = data.candidate_missed_risks || [];
+  const fallbackMissed = (report.what_might_be_missed || []).map(m => ({
+    entity_id: m.concern,
+    reason: m.reason,
+    missed_risk_score: 90
+  }));
+  const missedToRender = candidateMissed.length ? candidateMissed : fallbackMissed;
+
+  const missedHtml = missedToRender.length ? missedToRender.map(m => {
+    const isCrit = (m.missed_risk_score != null && m.missed_risk_score >= 80);
+    return `
+      <div class="missed-risk-card ${isCrit ? 'critical-alert' : ''}">
+        <div class="missed-risk-header">
+          <span class="missed-risk-entity">${esc(m.entity_id || m.concern)}</span>
+          ${m.missed_risk_score != null ? `<span class="missed-score-tag">${Math.round(m.missed_risk_score)}% RISK</span>` : ''}
+        </div>
+        <div class="missed-risk-reason">${esc(m.reason || 'Historical incident pattern or untested downstream surface.')}</div>
+        ${m.supporting_checkpoint_id ? `<div class="incident-ref-badge">Past Incident: ${esc(m.supporting_checkpoint_id)}</div>` : ''}
+      </div>
+    `;
+  }).join('') : '<div class="empty-muted-text">No gaps or missed-risk anomalies detected.</div>';
+
+  if ($('missedRisksList')) $('missedRisksList').innerHTML = missedHtml;
+
+  const recs = data.recommended_tests || [];
+  const fallbackTests = (report.what_to_test || []).map(t => ({
+    test_id: t.test,
+    priority: t.priority || 'recommended',
+    relevance_score: 80,
+    reason: t.reason || ''
+  }));
+  const testsToRender = recs.length ? recs : fallbackTests;
+
+  const testsHtml = testsToRender.length ? testsToRender.map(t => {
+    const prio = String(t.priority || 'recommended').toLowerCase();
+    const testCmd = `pytest -k "${esc(t.test_id)}"`;
+    return `
+      <div class="test-item-card ${prio}">
+        <div class="test-item-left">
+          <i class="test-dot"></i>
+          <div>
+            <div class="test-id-name">${esc(t.test_id)}</div>
+            ${t.reason ? `<div class="test-reason-text">${esc(t.reason)}</div>` : ''}
+          </div>
+        </div>
+        <div class="test-item-actions">
+          <button class="test-copy-btn" onclick="copyText('${testCmd}', this)" title="Copy pytest command">Copy CLI</button>
+          <span class="test-badge-score">${t.relevance_score ? `${Math.round(t.relevance_score)}% MATCH` : prio.toUpperCase()}</span>
+        </div>
+      </div>
+    `;
+  }).join('') : '<div class="empty-muted-text">No targeted tests indexed for this module.</div>';
+
+  if ($('testsList')) $('testsList').innerHTML = testsHtml;
+
+  const reasons = risk.risk_reasons || [];
+  const reasonsHtml = reasons.length ? reasons.map((r, i) => `
+    <div class="reason-row">
+      <span class="reason-index">${String(i + 1).padStart(2, '0')}</span>
+      <span>${esc(r)}</span>
+    </div>
+  `).join('') : '<div class="empty-muted-text">Risk computed within normal bounds.</div>';
+
+  if ($('reasonsList')) $('reasonsList').innerHTML = reasonsHtml;
+
+  if ($('provenanceGrid')) {
+    $('provenanceGrid').innerHTML = `
+      <div class="provenance-tag">
+        <span>GRAPH ENGINE</span>
+        <strong>${data.data_plane === 'databricks' ? 'Entire Graph' : 'AST Call Graph (Local)'}</strong>
+      </div>
+      <div class="provenance-tag">
+        <span>RETRIEVAL BACKBONE</span>
+        <strong>${data.data_plane === 'databricks' ? 'Databricks AI Search' : 'TF-IDF Vector Index'}</strong>
+      </div>
+      <div class="provenance-tag">
+        <span>REASONING AGENT</span>
+        <strong>${esc(report.engine || 'Deterministic Engine')}</strong>
+      </div>
+      <div class="provenance-tag">
+        <span>ANALYSIS RUN ID</span>
+        <strong title="${esc(data.run_id)}">${esc((data.run_id || '').slice(0, 12) || 'local-run')}</strong>
+      </div>
+      <div class="provenance-tag">
+        <span>LAKEHOUSE WRITE</span>
+        <strong>${esc(data.databricks_write || (data.data_plane === 'databricks' ? 'OK' : 'Local Stand-in'))}</strong>
+      </div>
+    `;
+  }
+
+  if ($('footerMeta')) $('footerMeta').textContent = `Engine: ${esc(report.engine || 'stellar')} · Plane: ${esc(data.data_plane || 'local')}`;
+}
+
+loadEngineStatus();
+getCommits();
+</script>
+
+<script type="module">
+import { onUserAuthStateChanged, signOutUser } from '/auth.js';
+
+onUserAuthStateChanged(user => {
+  const slot = document.getElementById('topHeaderAuthSlot');
+  if (user) {
+    const name = user.displayName || (user.email ? user.email.split('@')[0] : 'Engineer');
+    if (slot) {
+      slot.innerHTML = `
+        <a href="/" class="btn btn-ghost" style="padding:6px 12px; font-size:12px; text-decoration:none;"><span>Landing Page</span></a>
+        <span style="font-family:var(--font-mono); font-size:11px; color:var(--accent); padding:4px 8px; background:rgba(34,211,238,0.1); border:1px solid rgba(34,211,238,0.3); border-radius:var(--radius-sm);">${esc(name)}</span>
+        <button class="btn btn-secondary" style="padding:6px 12px; font-size:12px;" onclick="window.handleDashboardSignOut()"><span>Sign Out</span></button>
+      `;
+      window.handleDashboardSignOut = async () => {
+        await signOutUser();
+        window.location.href = '/signin.html?logout=true';
+      };
+    }
+  } else {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has('demo')) {
+      window.location.href = '/signin.html?redirect=/dashboard';
+    }
+  }
+});
+</script>
+</body>
+</html>

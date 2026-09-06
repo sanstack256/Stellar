@@ -747,7 +747,7 @@ document.addEventListener('DOMContentLoaded', () => {
   checkIntegrations();
   getCommits('sample_repo');
 
-  if (window.location.pathname.startsWith('/dashboard') || window.location.hash === '#analyzer') {
+  if (window.location.hash === '#analyzer') {
     setTimeout(focusAnalyzer, 120);
   }
 });
@@ -1393,17 +1393,21 @@ function renderReport(data) {
 
     if (user) {
       if (heroBtn) {
-        heroBtn.href = "javascript:void(0)";
-        heroBtn.onclick = () => focusAnalyzer();
+        heroBtn.href = "/dashboard";
+        heroBtn.onclick = null;
+        const s = heroBtn.querySelector('span');
+        if (s) s.textContent = 'Go to Dashboard';
       }
       if (navBtn) {
-        navBtn.href = "javascript:void(0)";
-        navBtn.onclick = () => focusAnalyzer();
+        navBtn.href = "/dashboard";
+        navBtn.onclick = null;
+        navBtn.style.display = 'none';
       }
       if (slot) {
         const name = user.displayName || (user.email ? user.email.split('@')[0] : 'User');
         slot.innerHTML = `
           <div style="display:flex; align-items:center; gap:8px;">
+            <a href="/dashboard" class="btn btn-primary" style="padding:6px 12px; font-size:12px; text-decoration:none;"><span>Dashboard</span></a>
             <span style="font-family:var(--font-mono); font-size:11px; color:var(--accent); padding:4px 8px; background:rgba(34,211,238,0.1); border:1px solid rgba(34,211,238,0.3); border-radius:var(--radius-sm);">${esc(name)}</span>
             <button class="btn btn-secondary" style="padding:6px 12px; font-size:12px;" onclick="window.handleNavbarSignOut()"><span>Sign Out</span></button>
           </div>
@@ -1417,10 +1421,13 @@ function renderReport(data) {
       if (heroBtn) {
         heroBtn.href = "/signup.html";
         heroBtn.onclick = null;
+        const s = heroBtn.querySelector('span');
+        if (s) s.textContent = 'Get Started';
       }
       if (navBtn) {
         navBtn.href = "/signup.html";
         navBtn.onclick = null;
+        navBtn.style.display = '';
       }
       if (slot) {
         slot.innerHTML = `

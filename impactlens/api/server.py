@@ -215,7 +215,7 @@ if dashboard_dir.exists():
     @app.api_route("/dashboard", methods=["GET", "HEAD"], response_class=FileResponse)
     @app.api_route("/dashboard/", methods=["GET", "HEAD"], response_class=FileResponse)
     def dashboard_page():
-        return FileResponse(str(dashboard_dir / "index.html"))
+        return FileResponse(str(dashboard_dir / "dashboard.html"))
 
     app.mount("/", StaticFiles(directory=str(dashboard_dir), html=True), name="dashboard")
 
