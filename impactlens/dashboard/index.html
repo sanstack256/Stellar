@@ -12,135 +12,384 @@
 </head>
 <body>
 
-<div class="app-container">
-  <aside class="sidebar">
-    <a href="#" class="brand-box" onclick="scrollToTop(); return false;">
-      <div class="brand-icon-wrap">
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <polygon points="12,2 15,9 22,12 15,15 12,22 9,15 2,12 9,9"/>
-        </svg>
-      </div>
-      <div class="brand-meta">
-        <h1>Stellar</h1>
-        <span>IMPACT ENGINE</span>
-      </div>
-    </a>
+<header class="site-nav" id="siteNav">
+  <a href="#" class="nav-brand" onclick="scrollToTop(); return false;">
+    <div class="nav-brand-icon">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <polygon points="12,2 15,9 22,12 15,15 12,22 9,15 2,12 9,9"/>
+      </svg>
+    </div>
+    <div class="nav-brand-text">
+      <h1>Stellar</h1>
+      <span class="nav-brand-tag">IMPACT ENGINE</span>
+    </div>
+  </a>
 
-    <div class="nav-group-title">WORKSPACE</div>
-    <nav class="nav-menu">
-      <button class="nav-item active" onclick="scrollToTop()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 12l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
-        <span>Executive Overview</span>
-      </button>
-      <button class="nav-item" onclick="focusAnalyzer()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-        <span>Analyze Change</span>
-      </button>
-      <button class="nav-item" onclick="focusSection('highRiskAlert')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
-        <span>Critical Alerts</span>
-      </button>
-      <button class="nav-item" onclick="focusSection('blastRadiusSection')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="6" cy="12" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 11l8-4M8 13l8 4"/></svg>
-        <span>Blast Radius Flow</span>
-      </button>
-      <button class="nav-item" onclick="focusSection('testPlanSection')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="m5 12 4 4L19 6"/></svg>
-        <span>Targeted Test Plan</span>
-      </button>
-    </nav>
+  <ul class="nav-links">
+    <li><a href="#problem" class="nav-link">Problem</a></li>
+    <li><a href="#propagation" class="nav-link">Propagation</a></li>
+    <li><a href="#graph" class="nav-link">Graph Model</a></li>
+    <li><a href="#checkpoints" class="nav-link">Checkpoints</a></li>
+    <li><a href="#questions" class="nav-link">4 Questions</a></li>
+    <li><a href="#analyzer" class="nav-link">Live Engine</a></li>
+  </ul>
 
-    <div class="nav-group-title">INFRASTRUCTURE</div>
-    <nav class="nav-menu">
-      <button class="nav-item" onclick="focusSection('provenanceSection')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-        <span>Evidence Lakehouse</span>
-      </button>
-    </nav>
+  <div class="nav-actions">
+    <div class="nav-status-chip">
+      <i class="dot"></i>
+      <span id="engineStatus">Checking integrations…</span>
+    </div>
+    <button class="btn btn-primary" onclick="focusAnalyzer()">
+      <span>Launch Investigation</span>
+    </button>
+  </div>
+</header>
 
-    <div class="sidebar-footer">
-      <div class="engine-badge">
-        <div class="engine-header">
-          <span>DATA PLANE</span>
-          <i class="status-pulse-dot"></i>
+<main>
+  <section class="hero-section" id="hero">
+    <div class="site-container">
+      <div class="hero-header-content" id="heroHeaderContent">
+        <div class="hero-eyebrow">
+          <span class="hero-eyebrow-dot"></span>
+          DETERMINISTIC CODE INTELLIGENCE
         </div>
-        <div class="engine-status-text" id="engineStatus">Checking integrations…</div>
+        <h1 class="hero-headline">
+          A code change propagates through a <span class="highlight">living dependency graph</span>.
+        </h1>
+        <p class="hero-description">
+          Stellar traces structural call graphs, developer intent checkpoints, and historical incident memory to evaluate every commit with mathematical precision.
+        </p>
+
+        <div class="hero-cta-group">
+          <button class="btn btn-primary" onclick="focusAnalyzer()">
+            <span>Launch Investigation</span>
+          </button>
+          <button class="btn btn-secondary" onclick="document.getElementById('problem').scrollIntoView({behavior:'smooth'})">
+            <span>Inspect Propagation Path</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="hero-graph-wrap" id="heroGraphWrap">
+        <div class="hero-graph-canvas" id="heroCanvas">
+          <svg class="hero-graph-svg" id="heroSvg">
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#344054"/>
+              </marker>
+              <marker id="arrow-active" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#6366F1"/>
+              </marker>
+              <marker id="arrow-impact" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#FBBF24"/>
+              </marker>
+              <marker id="arrow-test" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#34D399"/>
+              </marker>
+            </defs>
+            <line x1="220" y1="90" x2="380" y2="170" class="graph-edge active" marker-end="url(#arrow-active)"/>
+            <line x1="480" y1="200" x2="620" y2="130" class="graph-edge risk" marker-end="url(#arrow-impact)"/>
+            <line x1="480" y1="210" x2="620" y2="280" class="graph-edge risk" marker-end="url(#arrow-impact)"/>
+            <line x1="720" y1="130" x2="880" y2="100" class="graph-edge" marker-end="url(#arrow)"/>
+            <line x1="740" y1="300" x2="880" y2="300" class="graph-edge active" marker-end="url(#arrow-test)"/>
+            <line x1="480" y1="230" x2="380" y2="340" class="graph-edge evidence"/>
+            <circle cx="380" cy="170" r="3" class="graph-signal-dot">
+              <animate attributeName="cx" values="220;380;480;620;740;880" dur="4s" repeatCount="indefinite"/>
+              <animate attributeName="cy" values="90;170;210;280;300;300" dur="4s" repeatCount="indefinite"/>
+            </circle>
+          </svg>
+
+          <div class="graph-node node-changed node-s1" style="top:150px; left:320px;" onmouseenter="showTooltip('validate()', 'Modified function: checks 3DS authentication and amount rules.')">
+            <span class="node-tag">MODIFIED ENTITY</span>
+            <span class="node-name">validate(payment)</span>
+          </div>
+
+          <div class="graph-node node-impact node-s2" style="top:90px; left:600px;" onmouseenter="showTooltip('authorize()', 'Direct caller: executes authorization transactions via gateway.')">
+            <span class="node-tag">DIRECT CALLER</span>
+            <span class="node-name">authorize(payment)</span>
+          </div>
+
+          <div class="graph-node node-critical node-s2" style="top:250px; left:580px;" onmouseenter="showTooltip('process_refund()', 'Critical caller: relies on validate() reject logic during reversals.')">
+            <span class="node-tag">CRITICAL IMPACT</span>
+            <span class="node-name">process_refund(id)</span>
+          </div>
+
+          <div class="graph-node node-s4" style="top:50px; left:60px;" onmouseenter="showTooltip('payments/service.py', 'Source file containing core payment orchestration logic.')">
+            <span class="node-tag">SOURCE FILE</span>
+            <span class="node-name">payments/service.py</span>
+          </div>
+
+          <div class="graph-node node-s4" style="top:70px; left:870px;" onmouseenter="showTooltip('CheckoutController', 'Transitive consumer: web tier endpoint handling cart conversions.')">
+            <span class="node-tag">TRANSITIVE DEPTH 2</span>
+            <span class="node-name">CheckoutController</span>
+          </div>
+
+          <div class="graph-node node-test node-s5" style="top:270px; left:860px;" onmouseenter="showTooltip('test_refund.py', 'Targeted test: 79% token & caller proximity score.')">
+            <span class="node-tag">TARGET TEST</span>
+            <span class="node-name">test_refund.py</span>
+          </div>
+
+          <div class="graph-node node-evidence node-s5" style="top:320px; left:260px;" onmouseenter="showTooltip('Incident Checkpoint hist_b2', 'Historical evidence: refund failures tied to validation rejection.')">
+            <span class="node-tag">INCIDENT ANCHOR</span>
+            <span class="node-name">checkpoint: hist_b2</span>
+          </div>
+
+          <div class="graph-tooltip" id="heroTooltip">
+            <div class="tooltip-title" id="tooltipTitle">payments/service.py</div>
+            <div class="tooltip-meta" id="tooltipMeta">Hover graph nodes to inspect AST relationships and blast radius propagation.</div>
+          </div>
+        </div>
       </div>
     </div>
-  </aside>
+  </section>
 
-  <main class="main-viewport">
-    <header class="top-header">
-      <div class="breadcrumbs">
-        <span class="breadcrumb-brand">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,12 15,15 12,22 9,15 2,12 9,9"/></svg>
-          Stellar Engine
-        </span>
-        <span>/</span>
-        <b>Blast Radius &amp; Risk Intelligence</b>
+  <div class="section-connector"></div>
+
+  <section class="problem-section" id="problem">
+    <div class="site-container">
+      <div class="reveal-item">
+        <span class="section-eyebrow">THE VISIBILITY GAP</span>
+        <h2 class="section-heading">A code change rarely stays where you made it.</h2>
+        <p class="section-description">
+          A single diff touches lines of code, but the execution ripples across transitive callers, forgotten edge cases, and unmonitored test gaps.
+        </p>
       </div>
-      <div class="header-actions">
-        <button class="btn btn-ghost" onclick="loadCommitsIntoPicker()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="4"/><path d="M1.05 12H7M17.01 12h5.95"/></svg>
-          Pick Commit
-        </button>
-        <button class="btn btn-primary" onclick="focusAnalyzer()">
-          <span>＋</span> New Analysis
-        </button>
+
+      <div class="problem-chain-track reveal-item stagger-1" id="problemChain">
+        <div class="chain-item active-change revealed" id="chainChange">
+          <span>01</span>
+          <b>CHANGE: validate()</b>
+        </div>
+        <span class="chain-separator">→</span>
+        <div class="chain-item active-impact revealed" id="chainDep">
+          <span>02</span>
+          <b>DEPENDENCY: authorize()</b>
+        </div>
+        <span class="chain-separator">→</span>
+        <div class="chain-item revealed" id="chainFeat">
+          <span>03</span>
+          <b>FEATURE: CheckoutController</b>
+        </div>
+        <span class="chain-separator">→</span>
+        <div class="chain-item active-test revealed" id="chainTest">
+          <span>04</span>
+          <b>TEST: test_refund.py</b>
+        </div>
+        <span class="chain-separator">→</span>
+        <div class="chain-item active-risk revealed" id="chainRisk">
+          <span>05</span>
+          <b>GAP: unmonitored reversal</b>
+        </div>
       </div>
-    </header>
 
-    <div class="content-wrapper">
-      <section class="hero-banner">
-        <div>
-          <div class="hero-eyebrow">
-            <span class="hero-eyebrow-dot"></span>
-            DETERMINISTIC CODE INTELLIGENCE
-          </div>
-          <h1 class="hero-title">Know the blast radius before you merge.</h1>
-          <p class="hero-desc">Stellar analyzes structural call graphs, developer intent checkpoints, and historical incident memory to evaluate every commit with precision.</p>
+      <div class="problem-cards-grid">
+        <div class="problem-card reveal-item stagger-1" onmouseenter="highlightChain('chainDep')" onmouseleave="resetChainHighlight()">
+          <div class="problem-card-num">01 / PROPAGATION</div>
+          <h3>Hidden Dependencies</h3>
+          <p>Transitive callers and shared utility contracts break silently two or three layers deep, invisible to standard file diffs.</p>
         </div>
-        <div class="pipeline-card">
-          <div class="pipeline-title">
-            <span>PIPELINE ARCHITECTURE</span>
-            <span>END-TO-END AUDIT</span>
-          </div>
-          <div class="pipeline-steps">
-            <div class="pipe-node active">1. GRAPH</div>
-            <div class="pipe-arrow">→</div>
-            <div class="pipe-node active">2. MEMORY</div>
-            <div class="pipe-arrow">→</div>
-            <div class="pipe-node active">3. RISK</div>
-            <div class="pipe-arrow">→</div>
-            <div class="pipe-node active">4. TESTS</div>
-          </div>
+        <div class="problem-card reveal-item stagger-2" onmouseenter="highlightChain('chainRisk')" onmouseleave="resetChainHighlight()">
+          <div class="problem-card-num">02 / MEMORY</div>
+          <h3>Missing Context</h3>
+          <p>Commit diffs lack the original developer reasoning, session history, and past post-mortems that explain why code was written.</p>
         </div>
-      </section>
+        <div class="problem-card reveal-item stagger-3" onmouseenter="highlightChain('chainTest')" onmouseleave="resetChainHighlight()">
+          <div class="problem-card-num">03 / VERIFICATION</div>
+          <h3>Forgotten Tests</h3>
+          <p>Running entire test suites is slow; guessing which tests to run leaves critical downstream payment paths unverified.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      <section class="four-questions-grid">
-        <div class="question-card">
-          <span class="question-num">01 / CHANGE</span>
-          <h3 class="question-title">What changed?</h3>
-          <p class="question-desc">Synthesizes file diffs, hunk line-ranges, and AST code entity definitions touched in the commit.</p>
-        </div>
-        <div class="question-card">
-          <span class="question-num">02 / CONNECTIONS</span>
-          <h3 class="question-title">What could it affect?</h3>
-          <p class="question-desc">Traverses dependency call graphs to calculate direct callers and transitive propagation depth.</p>
-        </div>
-        <div class="question-card">
-          <span class="question-num">03 / TESTS</span>
-          <h3 class="question-title">What should we test?</h3>
-          <p class="question-desc">Ranks the existing test suite by token relevance and caller proximity rather than running everything.</p>
-        </div>
-        <div class="question-card">
-          <span class="question-num">04 / EVIDENCE</span>
-          <h3 class="question-title">What might we have missed?</h3>
-          <p class="question-desc">Cross-references historical post-mortem checkpoints and surfaces unmonitored downstream gaps.</p>
-        </div>
-      </section>
+  <div class="section-connector"></div>
 
-      <section class="analyzer-panel" id="analyzer">
+  <section class="propagation-section" id="propagation">
+    <div class="site-container">
+      <div style="text-align:center;" class="reveal-item">
+        <span class="section-eyebrow">PROPAGATION ARCHITECTURE</span>
+        <h2 class="section-heading">From Diff to Impact in Five Stages</h2>
+        <p class="section-description">
+          Every commit executes a deterministic pipeline that models code propagation from raw AST changes to verified test execution.
+        </p>
+      </div>
+
+      <div class="propagation-track">
+        <div class="propagation-step active reveal-item stagger-1">
+          <div class="step-tag">STAGE 01</div>
+          <h4>1. AST Diff</h4>
+          <p>Extracts changed function and class symbols from line-range hunks.</p>
+        </div>
+        <div class="propagation-step active reveal-item stagger-2">
+          <div class="step-tag">STAGE 02</div>
+          <h4>2. Call Graph</h4>
+          <p>Recursively traverses direct callers and transitive dependency depth.</p>
+        </div>
+        <div class="propagation-step active reveal-item stagger-3">
+          <div class="step-tag">STAGE 03</div>
+          <h4>3. Surface Impact</h4>
+          <p>Maps blast radius to revenue-critical checkout and billing endpoints.</p>
+        </div>
+        <div class="propagation-step active reveal-item stagger-4">
+          <div class="step-tag">STAGE 04</div>
+          <h4>4. Test Ranking</h4>
+          <p>Scores test suite relevance by token context and call proximity.</p>
+        </div>
+        <div class="propagation-step active reveal-item stagger-5">
+          <div class="step-tag">STAGE 05</div>
+          <h4>5. Gap Detection</h4>
+          <p>Cross-references historical incident checkpoints for unmonitored paths.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-connector"></div>
+
+  <section class="graph-section" id="graph">
+    <div class="site-container">
+      <div class="split-layout">
+        <div class="split-content reveal-item">
+          <span class="section-eyebrow">GRAPH INTELLIGENCE</span>
+          <h2>Deterministic graph traversal over guesswork.</h2>
+          <p>
+            Stellar constructs an exact abstract syntax tree call graph of your repository. Every function definition, caller, and module import is indexed deterministically to calculate exact propagation depths without LLM hallucinations.
+          </p>
+          <div style="margin-top:var(--space-6);">
+            <button class="btn btn-secondary" onclick="focusAnalyzer()">
+              <span>Analyze Real Call Graph</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="codebase-depth-card reveal-item stagger-2">
+          <div class="depth-card-header">
+            <span class="depth-card-title">PROPAGATION HIERARCHY</span>
+            <span class="section-tag">DEPTH AUDIT</span>
+          </div>
+          <div class="depth-list">
+            <div class="depth-row root">
+              <span class="entity-name">payments.service.PaymentService.validate</span>
+              <span class="entity-level">ROOT MODIFIED</span>
+            </div>
+            <div class="depth-row">
+              <span class="entity-name">payments.service.PaymentService.authorize</span>
+              <span class="entity-level">DEPTH 1 CALLER</span>
+            </div>
+            <div class="depth-row">
+              <span class="entity-name">refunds.service.RefundService.process_refund</span>
+              <span class="entity-level">DEPTH 1 CALLER</span>
+            </div>
+            <div class="depth-row">
+              <span class="entity-name">checkout.controller.CheckoutController.checkout</span>
+              <span class="entity-level">DEPTH 2 CALLER</span>
+            </div>
+            <div class="depth-row">
+              <span class="entity-name">webhooks.processor.WebhookProcessor.retry</span>
+              <span class="entity-level">DEPTH 2 CALLER</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-connector"></div>
+
+  <section class="checkpoint-section" id="checkpoints">
+    <div class="site-container">
+      <div class="reveal-item">
+        <span class="section-eyebrow">CONTEXTUAL ANCHORS</span>
+        <h2 class="section-heading">Ground impact analysis in developer intent &amp; memory.</h2>
+        <p class="section-description">
+          Code changes are evaluated against developer session prompts and historical incident checkpoints retrieved from the vector index.
+        </p>
+      </div>
+
+      <div class="checkpoint-timeline reveal-item stagger-1">
+        <div class="checkpoint-line-bg"></div>
+        <div class="checkpoint-line-fill"></div>
+        <div class="checkpoint-node stagger-1" onclick="runPreset('Initial commit')">
+          <div class="checkpoint-dot"></div>
+          <span class="checkpoint-label">COMMIT 7c89b2c</span>
+          <span class="checkpoint-title">Checkout Baseline</span>
+        </div>
+        <div class="checkpoint-node stagger-2" onclick="runPreset('Add order receipt')">
+          <div class="checkpoint-dot"></div>
+          <span class="checkpoint-label">COMMIT edfe69f</span>
+          <span class="checkpoint-title">Order Notifications</span>
+        </div>
+        <div class="checkpoint-node active stagger-3" onclick="runPreset('Fix fraud validation')">
+          <div class="checkpoint-dot"></div>
+          <span class="checkpoint-label">COMMIT 8457048</span>
+          <span class="checkpoint-title">3DS Fraud Check</span>
+        </div>
+        <div class="checkpoint-node evidence stagger-4" onclick="runPreset('quick fix for refund')">
+          <div class="checkpoint-dot"></div>
+          <span class="checkpoint-label">COMMIT 40bff59</span>
+          <span class="checkpoint-title">Refund Incident Fix</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-connector"></div>
+
+  <section class="questions-section" id="questions">
+    <div class="site-container">
+      <div class="reveal-item">
+        <span class="section-eyebrow">METHODICAL AUDIT</span>
+        <h2 class="section-heading">Four questions. One investigation.</h2>
+        <p class="section-description">
+          Stellar answers four deterministic questions before any code enters production.
+        </p>
+      </div>
+
+      <div class="questions-interactive-wrap">
+        <div class="question-nav-list reveal-item stagger-1">
+          <div class="question-row-card active" id="qCard1" onclick="selectQuestion(1)">
+            <span class="question-card-num">01 / CHANGE</span>
+            <h3>What changed?</h3>
+            <p>Synthesizes file diffs, hunk line ranges, and AST entity definitions touched in the commit.</p>
+          </div>
+          <div class="question-row-card" id="qCard2" onclick="selectQuestion(2)">
+            <span class="question-card-num">02 / CONNECTIONS</span>
+            <h3>What could it affect?</h3>
+            <p>Traverses dependency call graphs to calculate direct callers and transitive propagation depth.</p>
+          </div>
+          <div class="question-row-card" id="qCard3" onclick="selectQuestion(3)">
+            <span class="question-card-num">03 / TESTS</span>
+            <h3>What should we test?</h3>
+            <p>Ranks the existing test suite by token relevance and caller proximity rather than running everything.</p>
+          </div>
+          <div class="question-row-card" id="qCard4" onclick="selectQuestion(4)">
+            <span class="question-card-num">04 / EVIDENCE</span>
+            <h3>What might we have missed?</h3>
+            <p>Cross-references historical post-mortem checkpoints and surfaces unmonitored downstream gaps.</p>
+          </div>
+        </div>
+
+        <div class="question-detail-panel reveal-item stagger-2" id="qDetailPanel">
+          <div class="depth-card-header">
+            <span class="depth-card-title" id="qDetailTag">INVESTIGATION VIEW: 01 / WHAT CHANGED?</span>
+            <span class="section-tag" id="qDetailStatus">AUDIT ACTIVE</span>
+          </div>
+          <div class="question-preview-box" id="qDetailContent">
+            <div><strong>Target File:</strong> payments/service.py</div>
+            <div><strong>Hunk Range:</strong> Lines 14-22 (check_3ds validation logic)</div>
+            <div><strong>Modified Symbol:</strong> PaymentService.validate</div>
+            <div style="margin-top:8px; color:var(--ai-reasoning);">AST Parser detected signature integrity intact, conditional fraud rejection modified.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-connector"></div>
+
+  <section class="engine-section" id="analyzer">
+    <div class="site-container">
+      <div class="analyzer-panel reveal-item">
         <div class="panel-header">
           <div class="panel-title">
             <h2>Analyze Repository &amp; Commit</h2>
@@ -165,7 +414,7 @@
               <datalist id="commitDatalist"></datalist>
             </div>
             <button class="btn btn-primary" id="runBtn" onclick="runAnalysis()">
-              <span>Analyze Change →</span>
+              <span>Analyze Change</span>
             </button>
           </div>
 
@@ -248,28 +497,25 @@
 
           <div class="metrics-bar">
             <div class="metric-card">
-              <span class="metric-value" id="mBlastCount">0</span>
-              <span class="metric-label">Affected Entities</span>
+              <div class="metric-card-label">Blast Radius</div>
+              <div class="metric-card-val" id="mBlastCount">0</div>
             </div>
             <div class="metric-card">
-              <span class="metric-value" id="mDepthSignal">0</span>
-              <span class="metric-label">Dependency Depth</span>
+              <div class="metric-card-label">Propagation Depth</div>
+              <div class="metric-card-val" id="mDepthSignal">0</div>
             </div>
             <div class="metric-card">
-              <span class="metric-value" id="mCoverageGap">0%</span>
-              <span class="metric-label">Coverage Gap</span>
+              <div class="metric-card-label">Coverage Gap</div>
+              <div class="metric-card-val" id="mCoverageGap">0%</div>
             </div>
             <div class="metric-card">
-              <span class="metric-value" id="mHistoryHits">0</span>
-              <span class="metric-label">Historical Matches</span>
+              <div class="metric-card-label">History Matches</div>
+              <div class="metric-card-val" id="mHistoryHits">0</div>
             </div>
           </div>
 
-          <div class="risk-breakdown-panel">
-            <div class="breakdown-title">
-              <span>AUDITABLE RISK FACTOR BREAKDOWN</span>
-              <span id="breakdownMeta">7 DIMENSIONS</span>
-            </div>
+          <div class="breakdown-card">
+            <div class="breakdown-card-title">DETERMINISTIC FACTOR BREAKDOWN</div>
             <div class="breakdown-grid" id="breakdownGrid"></div>
           </div>
 
@@ -279,24 +525,18 @@
                 <div class="section-title-bar">
                   <h3>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="6" cy="12" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 11l8-4M8 13l8 4"/></svg>
-                    Blast Radius Visualizer
+                    Blast Radius Flow
                   </h3>
-                  <span class="section-tag" id="blastGraphMeta">0 ENTITIES</span>
+                  <span class="section-tag" id="blastGraphMeta">CALL GRAPH</span>
                 </div>
-                <div class="graph-viewport">
-                  <div class="graph-nodes-flow" id="graphFlow"></div>
-                </div>
-                <div class="graph-footer-legend">
-                  <div class="legend-item"><div class="legend-box"></div><span>Root Changed Entity</span></div>
-                  <div class="legend-item"><span>→ Downstream Caller</span></div>
-                </div>
+                <div class="graph-flow-container" id="graphFlow"></div>
               </div>
 
               <div class="dashboard-section" id="testPlanSection">
                 <div class="section-title-bar">
                   <h3>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="m5 12 4 4L19 6"/></svg>
-                    Targeted Test Recommendations
+                    Targeted Test Plan
                   </h3>
                   <span class="section-tag">RANKED RELEVANCE</span>
                 </div>
@@ -324,58 +564,249 @@
                   </h3>
                   <span class="section-tag">AUDITABLE FACTORS</span>
                 </div>
-                <div class="reasons-list" id="reasonsList"></div>
+                <div id="reasonsList"></div>
+              </div>
+
+              <div class="dashboard-section" id="provenanceSection">
+                <div class="section-title-bar">
+                  <h3>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                    Evidence Provenance
+                  </h3>
+                  <span class="section-tag">ENGINE SPECS</span>
+                </div>
+                <div class="provenance-grid" id="provenanceGrid"></div>
               </div>
             </div>
           </div>
 
-          <div class="dashboard-section" id="provenanceSection">
-            <div class="section-title-bar">
-              <h3>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-                Evidence &amp; Provenance Tracking
-              </h3>
-              <span class="section-tag">LAKEHOUSE TRACEABILITY</span>
-            </div>
-            <div class="provenance-grid" id="provenanceGrid"></div>
+          <div class="report-footer">
+            <span id="footerMeta">Deterministic analysis powered by Stellar AST Engine</span>
+            <span>All calculations verifiable via JSON export</span>
           </div>
-
-          <footer class="report-footer">
-            <span>Stellar Engine · Evidence-grounded impact analysis</span>
-            <span id="footerMeta"></span>
-          </footer>
         </div>
-      </section>
+      </div>
     </div>
-  </main>
-</div>
+  </section>
+
+  <section class="final-cta-section" id="finalCta">
+    <div class="site-container reveal-item">
+      <h2 class="final-cta-title">Know the blast radius before you merge.</h2>
+      <p class="final-cta-desc">
+        Deploy deterministic impact analysis across every pull request, branch, and commit in seconds.
+      </p>
+      <button class="btn btn-primary" onclick="focusAnalyzer()">
+        <span>Start Investigation Now</span>
+      </button>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer" id="siteFooter">
+  <div class="footer-content">
+    <div class="footer-brand">
+      <div class="nav-brand-icon">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <polygon points="12,2 15,9 22,12 15,15 12,22 9,15 2,12 9,9"/>
+        </svg>
+      </div>
+      <div>
+        <strong>Stellar</strong>
+        <p>Deterministic codebase impact &amp; risk intelligence.</p>
+      </div>
+    </div>
+
+    <ul class="footer-links">
+      <li><a href="#hero">Overview</a></li>
+      <li><a href="#propagation">Propagation</a></li>
+      <li><a href="#graph">Graph Engine</a></li>
+      <li><a href="#analyzer">Live Analyzer</a></li>
+    </ul>
+  </div>
+</footer>
 
 <script>
 const API_BASE = window.location.origin;
-let cachedCommits = null;
-let importedRepo = null;
-let lastAnalyzedSha = '';
-let currentReportData = null;
-
 const $ = id => document.getElementById(id);
-const esc = s => {
-  const d = document.createElement('div');
-  d.textContent = String(s ?? '');
-  return d.innerHTML;
-};
+const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const short = s => {
   const str = String(s ?? '');
   const parts = str.split('.');
   return parts.length > 2 ? parts.slice(-2).join('.') : str;
 };
 
+window.addEventListener('scroll', () => {
+  const nav = $('siteNav');
+  const heroHeader = $('heroHeaderContent');
+  const graphWrap = $('heroGraphWrap');
+  const scrollY = window.scrollY;
+
+  if (nav) {
+    if (scrollY > 20) nav.classList.add('scrolled');
+    else nav.classList.remove('scrolled');
+  }
+
+  if (heroHeader) {
+    if (scrollY > 140) heroHeader.classList.add('dimmed');
+    else heroHeader.classList.remove('dimmed');
+  }
+
+  if (graphWrap) {
+    if (scrollY > 40) graphWrap.classList.add('revealed');
+    if (scrollY > 60) graphWrap.classList.add('stage-1');
+    if (scrollY > 110) graphWrap.classList.add('stage-2');
+    if (scrollY > 170) graphWrap.classList.add('stage-3');
+    if (scrollY > 230) graphWrap.classList.add('stage-4');
+    if (scrollY > 290) graphWrap.classList.add('stage-5');
+  }
+});
+
+const observerOptions = {
+  threshold: 0.15,
+  rootMargin: '0px 0px -40px 0px'
+};
+
+const revealObserver = new IntersectionObserver((entries, obs) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('revealed');
+      obs.unobserve(entry.target);
+    }
+  });
+}, observerOptions);
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.reveal-item').forEach(el => revealObserver.observe(el));
+
+  const checkpointSection = $('checkpoints');
+  if (checkpointSection) {
+    const cpObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          checkpointSection.classList.add('revealed');
+        }
+      });
+    }, { threshold: 0.2 });
+    cpObserver.observe(checkpointSection);
+  }
+
+  checkIntegrations();
+  getCommits('sample_repo');
+});
+
+function highlightChain(id) {
+  const items = ['chainChange', 'chainDep', 'chainFeat', 'chainTest', 'chainRisk'];
+  items.forEach(it => {
+    const el = $(it);
+    if (el) {
+      if (it === id) el.style.transform = 'scale(1.06) translateY(-2px)';
+      else el.style.opacity = '0.3';
+    }
+  });
+}
+
+function resetChainHighlight() {
+  const items = ['chainChange', 'chainDep', 'chainFeat', 'chainTest', 'chainRisk'];
+  items.forEach(it => {
+    const el = $(it);
+    if (el) {
+      el.style.transform = '';
+      el.style.opacity = '';
+    }
+  });
+}
+
+const questionData = {
+  1: {
+    tag: 'INVESTIGATION VIEW: 01 / WHAT CHANGED?',
+    status: 'AST ENTITY EXTRACTION',
+    content: `
+      <div><strong>Target File:</strong> payments/service.py</div>
+      <div><strong>Hunk Range:</strong> Lines 14-22 (check_3ds validation logic)</div>
+      <div><strong>Modified Symbol:</strong> PaymentService.validate</div>
+      <div style="margin-top:8px; color:var(--ai-reasoning);">AST Parser detected signature integrity intact, conditional fraud rejection modified.</div>
+    `
+  },
+  2: {
+    tag: 'INVESTIGATION VIEW: 02 / WHAT COULD IT AFFECT?',
+    status: 'TRANSITIVE CALL TRAVERSAL',
+    content: `
+      <div><strong>Direct Callers (Depth 1):</strong> PaymentService.authorize, RefundService.process_refund</div>
+      <div><strong>Transitive Consumers (Depth 2):</strong> CheckoutController.checkout, WebhookProcessor.retry</div>
+      <div><strong>Criticality Score:</strong> 100% (touches core transaction authorization paths)</div>
+      <div style="margin-top:8px; color:var(--warning);">Blast radius spans 5 downstream entities across payments, refunds, and webhook tiers.</div>
+    `
+  },
+  3: {
+    tag: 'INVESTIGATION VIEW: 03 / WHAT SHOULD WE TEST?',
+    status: 'PROXIMITY RANKED TESTS',
+    content: `
+      <div><strong>Rank 1 (Critical):</strong> test_refund (79% match, 2 impact-context tokens)</div>
+      <div><strong>Rank 2 (Recommended):</strong> test_checkout_failure_high_amount (57% match)</div>
+      <div><strong>Rank 3 (Recommended):</strong> test_checkout_success (57% match)</div>
+      <div style="margin-top:8px; color:var(--success);">Targeted test subset executes in 0.3s vs full suite traversal of 45s.</div>
+    `
+  },
+  4: {
+    tag: 'INVESTIGATION VIEW: 04 / WHAT MIGHT WE HAVE MISSED?',
+    status: 'INCIDENT ANOMALY DETECTION',
+    content: `
+      <div><strong>Historical Checkpoint:</strong> hist_b2 ("refund fails silently when original payment was flagged as fraud")</div>
+      <div><strong>Uncovered Downstream Surface:</strong> WebhookProcessor.retry lacks direct test coverage</div>
+      <div><strong>Confidence:</strong> 72% auditable probability of regression without targeted test execution</div>
+      <div style="margin-top:8px; color:var(--error);">Validation reject behavior directly influences refundable transaction states.</div>
+    `
+  }
+};
+
+function selectQuestion(num) {
+  for (let i = 1; i <= 4; i++) {
+    const card = $(`qCard${i}`);
+    if (card) {
+      if (i === num) {
+        card.className = 'question-row-card active';
+      } else if (i < num) {
+        card.className = 'question-row-card past';
+      } else {
+        card.className = 'question-row-card';
+      }
+    }
+  }
+
+  const data = questionData[num];
+  if (data) {
+    const tag = $('qDetailTag');
+    const st = $('qDetailStatus');
+    const ct = $('qDetailContent');
+    if (tag) tag.textContent = data.tag;
+    if (st) st.textContent = data.status;
+    if (ct) ct.innerHTML = data.content;
+  }
+}
+
+function showTooltip(title, meta) {
+  const tt = $('heroTooltip');
+  const tTitle = $('tooltipTitle');
+  const tMeta = $('tooltipMeta');
+  if (tt && tTitle && tMeta) {
+    tTitle.textContent = title;
+    tMeta.textContent = meta;
+  }
+}
+
 function scrollToTop() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function focusAnalyzer() {
-  $('analyzer').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  setTimeout(() => $('repoPath').focus(), 300);
+  const el = $('analyzer');
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(() => {
+      const inp = $('repoPath');
+      if (inp) inp.focus();
+    }, 300);
+  }
 }
 
 function focusSection(id) {
@@ -387,13 +818,15 @@ function focusSection(id) {
   }
 }
 
-async function loadEngineStatus() {
+async function checkIntegrations() {
   try {
     const r = await fetch(`${API_BASE}/health/integrations`);
     const x = await r.json();
-    $('engineStatus').textContent = `Entire: ${x.entire && x.entire.enabled ? 'Live' : 'Sim/Demo'} · Databricks: ${x.databricks && x.databricks.enabled ? 'Connected' : 'Local Stand-in'}`;
-  } catch (e) {
-    $('engineStatus').textContent = 'Local Stand-in Engine Active';
+    const st = $('engineStatus');
+    if (st) st.textContent = `Entire: ${x.entire && x.entire.enabled ? 'Live' : 'Sim/Demo'} · Databricks: ${x.databricks && x.databricks.enabled ? 'Connected' : 'Local Stand-in'}`;
+  } catch {
+    const st = $('engineStatus');
+    if (st) st.textContent = 'Local Stand-in Engine Active';
   }
 }
 
@@ -411,88 +844,82 @@ async function importRepo() {
       body: JSON.stringify({ repo_url: url })
     });
     const x = await r.json();
-    if (!r.ok) throw new Error(x.detail || 'Repository import failed');
-    importedRepo = x;
+    if (!r.ok) throw new Error(x.detail || 'Clone failed');
     $('repoPath').value = x.repo_path;
     $('commitSha').value = x.head;
     $('repoHint').textContent = `Successfully cloned ${x.repo_name} (${(x.head || '').slice(0, 10)})`;
     cachedCommits = null;
-    await loadEngineStatus();
+    await getCommits(x.repo_path);
   } catch (e) {
     $('repoHint').textContent = `Import error: ${e.message}`;
   }
 }
 
+let cachedCommits = null;
 let lastFetchedRepo = null;
 
-async function getCommits(forceRepo = null) {
+async function getCommits(forceRepo) {
   const repo = forceRepo || $('repoPath').value.trim() || 'sample_repo';
   if (cachedCommits && lastFetchedRepo === repo) return cachedCommits;
-  const r = await fetch(`${API_BASE}/commits?repo_path=${encodeURIComponent(repo)}`);
-  if (!r.ok) {
-    let err = await r.text();
-    try { err = JSON.parse(err).detail || err; } catch(_) {}
-    throw new Error(err || 'Failed to fetch commits');
+  try {
+    const r = await fetch(`${API_BASE}/commits?repo_path=${encodeURIComponent(repo)}`);
+    if (!r.ok) {
+      cachedCommits = null;
+      lastFetchedRepo = repo;
+      return null;
+    }
+    const data = await r.json();
+    cachedCommits = data.commits || [];
+    lastFetchedRepo = repo;
+    const dl = $('commitDatalist');
+    if (dl) {
+      dl.innerHTML = cachedCommits.map(c =>
+        `<option value="${esc(c.sha)}">${esc(c.sha.slice(0, 7))} · ${esc(c.subject)}</option>`
+      ).join('');
+    }
+    return cachedCommits;
+  } catch {
+    cachedCommits = null;
+    return null;
   }
-  const x = await r.json();
-  cachedCommits = x.commits || [];
-  lastFetchedRepo = repo;
-  updateCommitDatalist(cachedCommits);
-  return cachedCommits;
-}
-
-function updateCommitDatalist(commits) {
-  const dl = $('commitDatalist');
-  if (!dl) return;
-  dl.innerHTML = commits.map(c => `<option value="${c.sha}">${c.subject}</option>`).join('');
 }
 
 async function loadCommitsIntoPicker() {
   $('repoHint').textContent = 'Fetching repository commits…';
-  try {
-    const cs = await getCommits();
-    if (cs.length) {
+  const cs = await getCommits();
+  if (cs && cs.length) {
+    if ($('commitSha').value === 'HEAD') {
       $('commitSha').value = cs[0].sha;
       $('repoHint').textContent = `Latest commit (${cs[0].sha.slice(0, 10)}): ${cs[0].subject}`;
-      focusAnalyzer();
-    } else {
-      $('repoHint').textContent = 'No commits found in this repository.';
     }
-  } catch (e) {
-    $('repoHint').textContent = `Error fetching commits: ${e.message}`;
+  } else {
+    $('repoHint').textContent = 'No commits found in this repository.';
   }
 }
 
-function highlightActivePreset(match) {
-  ['presetLow', 'presetMed', 'presetHigh'].forEach(id => {
-    const el = $(id);
-    if (el) el.classList.remove('active');
-  });
+async function runPreset(match) {
+  ['presetLow', 'presetMed', 'presetHigh'].forEach(id => $(id)?.classList.remove('active'));
   if (match.includes('receipt')) $('presetLow')?.classList.add('active');
   if (match.includes('fraud')) $('presetMed')?.classList.add('active');
   if (match.includes('refund')) $('presetHigh')?.classList.add('active');
-}
 
-async function runPreset(match) {
-  highlightActivePreset(match.toLowerCase());
   $('repoPath').value = 'sample_repo';
-  importedRepo = null;
-  cachedCommits = null;
-  lastFetchedRepo = null;
+  const cs = await getCommits('sample_repo');
+  const c = cs ? cs.find(x => x.subject.toLowerCase().includes(match.toLowerCase())) : null;
+
   $('errorBanner').style.display = 'none';
   $('status').textContent = `Loading demo commit for "${match}" from sample_repo…`;
   $('statusbar').classList.add('busy');
-  
-  try {
-    const cs = await getCommits('sample_repo');
-    const c = cs.find(v => v.subject && v.subject.toLowerCase().includes(match.toLowerCase()));
-    if (!c) throw new Error(`No commit found matching "${match}" in sample_repo`);
+
+  focusAnalyzer();
+
+  if (c) {
     $('commitSha').value = c.sha;
     $('repoHint').textContent = `Loaded scenario from sample_repo: ${c.subject}`;
     await runAnalysis();
-  } catch (e) {
-    showError(e.message);
-  } finally {
+  } else {
+    $('commitSha').value = 'HEAD';
+    $('repoHint').textContent = `Scenario "${match}" commit ref set to HEAD.`;
     $('statusbar').classList.remove('busy');
   }
 }
@@ -500,7 +927,7 @@ async function runPreset(match) {
 async function runAnalysis() {
   const btn = $('runBtn');
   const repo_path = $('repoPath').value.trim() || 'sample_repo';
-  const repo_name = (importedRepo && importedRepo.repo_name) || repo_path.split('/').pop() || 'ecommerce-demo';
+  const repo_name = repo_path.split('/').pop() || 'sample_repo';
   const commit = $('commitSha').value.trim() || 'HEAD';
 
   btn.disabled = true;
@@ -515,23 +942,18 @@ async function runAnalysis() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ repo_path, repo_name })
     });
-    if (!r.ok) {
-      let errMsg = r.statusText;
-      try {
-        const errBody = await r.json();
-        errMsg = errBody.detail || JSON.stringify(errBody);
-      } catch (_) {
-        errMsg = await r.text();
-      }
-      throw new Error(errMsg || 'Analysis request failed');
-    }
     const data = await r.json();
-    currentReportData = data;
+    if (!r.ok) throw new Error(data.detail || 'Analysis request rejected');
+
     renderReport(data);
-    const sub = (data.commit && data.commit.subject) ? data.commit.subject : 'Analysis ready';
+
+    const commits = await getCommits(repo_path);
+    const resolvedCommit = commits ? commits.find(c => c.sha === data.commit_id || c.sha.startsWith(commit)) : null;
+    const sub = resolvedCommit ? resolvedCommit.subject : (commit === 'HEAD' ? 'Working tree HEAD' : commit);
+    const author = (data.developer_checkpoint && data.developer_checkpoint.author) || 'Author';
+    const shaShort = (data.commit_id || commit).slice(0, 10);
+
     $('status').textContent = `Analysis complete · ${sub}`;
-    const shaShort = (data.commit && data.commit.sha) ? data.commit.sha.slice(0, 10) : '';
-    const author = (data.commit && data.commit.author) ? data.commit.author : '';
     $('runMeta').textContent = `${shaShort} (${author})`;
   } catch (e) {
     showError(e.message);
@@ -550,78 +972,85 @@ function showError(msg) {
   $('emptyState').style.display = 'none';
 }
 
-function copyCommit() {
-  if (lastAnalyzedSha) {
-    navigator.clipboard.writeText(lastAnalyzedSha);
-    const pill = $('commitPill');
-    if (pill) {
-      pill.textContent = 'Copied ✓';
-      setTimeout(() => { pill.textContent = `SHA: ${lastAnalyzedSha.slice(0, 10)}`; }, 1500);
-    }
-  }
-}
+let latestReportData = null;
 
-function copyText(text, btnEl) {
-  navigator.clipboard.writeText(text);
-  if (btnEl) {
-    const orig = btnEl.textContent;
-    btnEl.textContent = 'Copied ✓';
-    setTimeout(() => { btnEl.textContent = orig; }, 1500);
+function copyCommit() {
+  if (latestReportData && latestReportData.commit_id) {
+    const pill = $('commitPill');
+    navigator.clipboard.writeText(latestReportData.commit_id);
+    const old = pill.textContent;
+    pill.textContent = 'COPIED!';
+    setTimeout(() => { pill.textContent = old; }, 1500);
   }
 }
 
 function copyMarkdownSummary() {
-  if (!currentReportData) return;
-  const d = currentReportData;
+  if (!latestReportData) return;
+  const d = latestReportData;
+  const rep = d.report || {};
   const risk = d.risk || {};
-  const report = d.report || {};
-  const sha = (d.commit && d.commit.sha) ? d.commit.sha.slice(0, 8) : 'HEAD';
+  const tests = (d.recommended_tests || []).map(t => `- \`${t.test_id}\` (${t.priority}): ${t.reason}`).join('\n');
+  const missed = (d.candidate_missed_risks || []).map(m => `- **${m.entity_id}** (${m.missed_risk_score}%): ${m.reason}`).join('\n');
+
   const md = [
-    `### Stellar Impact & Risk Report (${sha})`,
-    `**Risk Score:** ${risk.risk_score || 0}/100 (${risk.risk_band || 'UNKNOWN'})`,
-    `**Summary:** ${report.what_changed || 'Code change'}`,
-    '',
-    `#### Blast Radius (${(d.affected_entities || []).length} affected entities):`,
-    ...(d.affected_entities || []).map(a => `- \`${a.entity_id}\` (depth ${a.depth || 1})`),
-    '',
-    `#### Recommended Tests:`,
-    ...(d.recommended_tests || []).map(t => `- [ ] \`${t.test_id}\` (${t.priority}) - ${t.reason}`),
-    '',
-    `#### Potential Missed Risks:`,
-    ...(d.candidate_missed_risks || []).map(m => `- \`${m.entity_id}\`: ${m.reason}`),
-    '',
-    `*Generated by Stellar AI Code Engine*`
+    `## Stellar Impact Engine Report`,
+    `**Commit:** \`${d.commit_id}\``,
+    `**Risk Score:** ${risk.risk_score} / 100 (${risk.risk_band})`,
+    ``,
+    `### What Changed?`,
+    rep.what_changed || 'Diff entities evaluated.',
+    ``,
+    `### What Could Be Affected?`,
+    (rep.what_could_be_affected || []).map(a => `- \`${a}\``).join('\n'),
+    ``,
+    `### Recommended Tests`,
+    tests || 'No targeted tests indexed.',
+    ``,
+    `### Missed Risk Anomalies`,
+    missed || 'No gaps detected.',
+    ``,
+    `*Generated deterministically by Stellar Impact Engine*`
   ].join('\n');
+
   navigator.clipboard.writeText(md);
-  alert('PR Summary copied to clipboard!');
+  alert('PR Summary copied to clipboard in Markdown format!');
 }
 
 function downloadReportJson() {
-  if (!currentReportData) return;
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentReportData, null, 2));
-  const dlAnchor = document.createElement('a');
-  dlAnchor.setAttribute("href", dataStr);
-  const sha = (currentReportData.commit && currentReportData.commit.sha) ? currentReportData.commit.sha.slice(0, 8) : 'report';
-  dlAnchor.setAttribute("download", `stellar_report_${sha}.json`);
-  dlAnchor.click();
+  if (!latestReportData) return;
+  const str = JSON.stringify(latestReportData, null, 2);
+  const blob = new Blob([str], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `stellar-impact-${(latestReportData.commit_id || 'report').slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function copyText(text, btn) {
+  navigator.clipboard.writeText(text);
+  const old = btn.textContent;
+  btn.textContent = 'Copied!';
+  setTimeout(() => { btn.textContent = old; }, 1200);
 }
 
 function renderReport(data) {
+  latestReportData = data;
   $('errorBanner').style.display = 'none';
   $('emptyState').style.display = 'none';
   $('reportContainer').style.display = 'flex';
 
-  const commit = data.commit || {};
   const risk = data.risk || {};
+  const score = risk.risk_score != null ? Math.round(risk.risk_score) : 0;
+  const band = (risk.risk_band || 'LOW').toUpperCase();
+  const commit = data.developer_checkpoint || {};
   const report = data.report || {};
-  const band = String(risk.risk_band || 'MEDIUM').toUpperCase();
-  const score = risk.risk_score != null ? Math.round(Number(risk.risk_score) * 10) / 10 : 0;
-  lastAnalyzedSha = commit.sha || '';
 
   const pill = $('commitPill');
-  if (pill) pill.textContent = `SHA: ${lastAnalyzedSha ? lastAnalyzedSha.slice(0, 10) : 'HEAD'}`;
+  if (pill) pill.textContent = (data.commit_id || 'HEAD').slice(0, 10);
   const authorEl = $('commitAuthor');
-  if (authorEl) authorEl.textContent = `${commit.author || 'Author'} · ${commit.date || 'Recent'}`;
+  if (authorEl) authorEl.textContent = commit.author ? `by ${commit.author}` : '';
   const subjectEl = $('commitSubject');
   if (subjectEl) subjectEl.textContent = commit.subject || 'Code Change Analysis';
   const descEl = $('whatChangedText');
@@ -643,53 +1072,50 @@ function renderReport(data) {
   const scoreVal = $('riskScoreVal');
   if (scoreVal) {
     scoreVal.textContent = score;
-    scoreVal.style.color = band === 'CRITICAL' ? 'var(--error-strong)' : band === 'HIGH' ? 'var(--error)' : band === 'MEDIUM' ? 'var(--warning)' : 'var(--success)';
   }
   const bandBadge = $('riskBandBadge');
   if (bandBadge) {
-    bandBadge.className = `risk-badge-tag ${band}`;
     bandBadge.textContent = `${band} RISK`;
   }
 
   const alertCard = $('highRiskAlert');
   if (alertCard) {
-    if (band === 'HIGH' || band === 'CRITICAL' || score >= 60) {
-      alertCard.classList.add('show');
-      const t = $('highRiskAlertTitle');
-      if (t) t.textContent = `${band} RISK LEVEL DETECTED (${score}/100)`;
-      const p = $('highRiskAlertText');
-      if (p) p.textContent = `This commit touches core dependencies with high propagation depth. High-priority test executions and missed-risk reviews are required before merging.`;
+    if (band === 'HIGH') {
+      alertCard.style.display = 'flex';
+      $('highRiskAlertTitle').textContent = `High Risk Impact (${score}/100)`;
+      $('highRiskAlertText').textContent = (risk.risk_reasons && risk.risk_reasons.length)
+        ? risk.risk_reasons.slice(0, 2).join('. ') + '.'
+        : 'This commit touches critical path dependencies with high propagation depth. Direct review is recommended before merging.';
     } else {
-      alertCard.classList.remove('show');
+      alertCard.style.display = 'none';
     }
   }
 
   const affected = data.affected_entities || [];
-  const comp = risk.components || {};
-  let depth = 0;
-  if (comp.dependency_depth != null) {
-    depth = comp.dependency_depth;
-  } else if (affected.length > 0) {
-    depth = Math.max(...affected.map(a => a.depth || 1));
-  }
-  if ($('mBlastCount')) $('mBlastCount').textContent = affected.length;
-  if ($('mDepthSignal')) $('mDepthSignal').textContent = depth;
-  if ($('mCoverageGap')) $('mCoverageGap').textContent = `${comp.coverage_gap != null ? comp.coverage_gap : 0}%`;
-  if ($('mHistoryHits')) $('mHistoryHits').textContent = (data.historical_checkpoints_matched || []).length;
+  const maxDepth = affected.reduce((acc, a) => Math.max(acc, a.depth || 1), 0);
+  const hits = data.historical_checkpoints_matched || [];
+  const covGap = (risk.components && risk.components.coverage_gap != null) ? Math.round(risk.components.coverage_gap) : 0;
 
-  const bGrid = $('breakdownGrid');
-  if (bGrid) {
-    const keys = [
-      { k: 'centrality', label: 'Call Centrality' },
-      { k: 'dependents', label: 'Downstream Blast' },
-      { k: 'criticality', label: 'Module Criticality' },
-      { k: 'coverage_gap', label: 'Test Coverage Gap' },
-      { k: 'historical_frequency', label: 'Historical Incidents' },
-      { k: 'checkpoint_uncertainty', label: 'Intent Uncertainty' },
-      { k: 'dependency_depth', label: 'Propagation Depth' }
-    ];
-    bGrid.innerHTML = keys.map(item => {
-      const val = comp[item.k] != null ? Math.round(comp[item.k]) : 0;
+  if ($('mBlastCount')) $('mBlastCount').textContent = affected.length;
+  if ($('mDepthSignal')) $('mDepthSignal').textContent = maxDepth ? `${maxDepth} levels` : 'None';
+  if ($('mCoverageGap')) $('mCoverageGap').textContent = `${covGap}%`;
+  if ($('mHistoryHits')) $('mHistoryHits').textContent = hits.length;
+
+  const comps = risk.components || {};
+  const breakdownItems = [
+    { label: 'Centrality', key: 'centrality' },
+    { label: 'Dependents', key: 'dependents' },
+    { label: 'Criticality', key: 'criticality' },
+    { label: 'Coverage Gap', key: 'coverage_gap' },
+    { label: 'Historical Freq', key: 'historical_frequency' },
+    { label: 'Checkpoint Uncert.', key: 'checkpoint_uncertainty' },
+    { label: 'Dependency Depth', key: 'dependency_depth' }
+  ];
+
+  if ($('breakdownGrid')) {
+    $('breakdownGrid').innerHTML = breakdownItems.map(item => {
+      const raw = comps[item.key];
+      const val = raw != null ? Math.round(raw) : 0;
       return `
         <div class="breakdown-item">
           <div class="breakdown-item-header">
@@ -708,15 +1134,15 @@ function renderReport(data) {
   const flowNodes = [];
   changed.forEach(c => flowNodes.push({ name: c, isRoot: true }));
   affected.forEach(a => {
-    if (!changed.includes(a.entity_id)) {
-      flowNodes.push({ name: a.entity_id, isRoot: false, depth: a.depth || 1 });
+    const id = a.entity_id || a;
+    if (!flowNodes.some(x => x.name === id)) {
+      flowNodes.push({ name: id, isRoot: false, depth: a.depth || 1 });
     }
   });
 
-  const graphFlowHtml = flowNodes.length ? flowNodes.map((n, i) => `
-    <div class="node-row-item">
-      ${i > 0 ? '<div class="node-arrow">↳</div>' : ''}
-      <div class="node-box ${n.isRoot ? 'root-node' : ''}" onclick="copyText('${esc(n.name)}', this)" title="Click to copy full symbol path: ${esc(n.name)}">
+  const graphFlowHtml = flowNodes.length ? flowNodes.map(n => `
+    <div class="flow-node-card ${n.isRoot ? 'root' : 'impact'}">
+      <div style="display:flex; align-items:center; justify-content:space-between; width:100%;">
         <div>
           <div class="node-type">${n.isRoot ? 'ROOT CHANGED ENTITY' : `DEPTH ${n.depth || 1} CALLER`}</div>
           <div class="node-symbol">${esc(short(n.name))}</div>
@@ -805,25 +1231,20 @@ function renderReport(data) {
         <strong>${data.data_plane === 'databricks' ? 'Databricks AI Search' : 'TF-IDF Vector Index'}</strong>
       </div>
       <div class="provenance-tag">
-        <span>REASONING AGENT</span>
-        <strong>${esc(report.engine || 'Deterministic Engine')}</strong>
+        <span>RUN ID</span>
+        <strong>${esc((data.run_id || 'run-local').slice(0, 16))}…</strong>
       </div>
       <div class="provenance-tag">
-        <span>ANALYSIS RUN ID</span>
-        <strong title="${esc(data.run_id)}">${esc((data.run_id || '').slice(0, 12) || 'local-run')}</strong>
-      </div>
-      <div class="provenance-tag">
-        <span>LAKEHOUSE WRITE</span>
-        <strong>${esc(data.databricks_write || (data.data_plane === 'databricks' ? 'OK' : 'Local Stand-in'))}</strong>
+        <span>CONFIDENCE</span>
+        <strong>${Math.round((report.confidence || 0.85) * 100)}% AUDITABLE</strong>
       </div>
     `;
   }
 
-  if ($('footerMeta')) $('footerMeta').textContent = `Engine: ${esc(report.engine || 'stellar')} · Plane: ${esc(data.data_plane || 'local')}`;
+  if ($('footerMeta')) {
+    $('footerMeta').textContent = `Deterministic analysis completed for ${(data.commit_id || 'HEAD').slice(0, 10)} · Data plane: ${data.data_plane || 'local'}`;
+  }
 }
-
-loadEngineStatus();
-getCommits();
 </script>
 </body>
 </html>
