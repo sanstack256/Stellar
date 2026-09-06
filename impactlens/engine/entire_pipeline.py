@@ -114,10 +114,16 @@ def build(repo: str, commit: str, repo_name: str | None = None) -> dict[str, Any
         snapshot = {"raw": "", "rows": []}
         graph_quality = unavailable_graph_evidence(exc)
         snapshot_catalog = []
-    entities = _changed_entities(repo, commit, snapshot_catalog)
-    if not entities and files:
-        # File-level evidence is explicit, not a fabricated symbol.
-        entities = [f"file:{f}" for f in files]
+    # Changed entities must correspond to an actual Git diff.
+    # A first commit has no parent diff, so repository-wide Graph
+    # entities must not be interpreted as "changed" entities.
+    if files:
+        entities = _changed_entities(repo, commit, snapshot_catalog)
+        if not entities:
+            # File-level evidence is explicit, not a fabricated symbol.
+            entities = [f"file:{f}" for f in files]
+    else:
+        entities = []
 
     graph_evidence: list[dict[str, Any]] = []
     all_affected: dict[str, dict[str, Any]] = {}

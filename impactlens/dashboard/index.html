@@ -1583,6 +1583,186 @@
       gap: 10px;
       margin-top: 8px;
     }
+
+    /* =========================================================
+       DEVELOPER ACTION PLAN
+       ========================================================= */
+
+    .developer-action-plan {
+      margin-top: 20px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+    }
+
+    .developer-action-intro {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin: 0 0 16px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg-soft, rgba(255,255,255,.02));
+    }
+
+    .developer-action-icon {
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      background: var(--accent, rgba(255,255,255,.08));
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .developer-action-intro strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    .developer-action-intro p {
+      margin: 0;
+      color: var(--text-dim);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .action-plan-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .action-plan-item {
+      display: grid;
+      grid-template-columns: 38px 1fr auto;
+      gap: 12px;
+      align-items: start;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg-soft, rgba(255,255,255,.015));
+    }
+
+    .action-plan-number {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      background: rgba(255,255,255,.07);
+    }
+
+    .action-plan-content {
+      min-width: 0;
+    }
+
+    .action-plan-title {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .action-plan-description {
+      color: var(--text-dim);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .action-plan-source {
+      margin-top: 7px;
+      font-family: monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      word-break: break-word;
+    }
+
+    .action-plan-badge {
+      align-self: start;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .06em;
+      white-space: nowrap;
+    }
+
+    .action-plan-item.priority-critical {
+      border-left: 3px solid var(--risk-crit);
+    }
+
+    .action-plan-item.priority-high {
+      border-left: 3px solid var(--risk-high);
+    }
+
+    .action-plan-item.priority-medium {
+      border-left: 3px solid var(--risk-med);
+    }
+
+    .action-plan-item.priority-low {
+      border-left: 3px solid var(--risk-low);
+    }
+
+    .action-plan-item.priority-critical .action-plan-badge {
+      background: rgba(239,68,68,.12);
+      color: var(--risk-crit);
+    }
+
+    .action-plan-item.priority-high .action-plan-badge {
+      background: rgba(249,115,22,.12);
+      color: var(--risk-high);
+    }
+
+    .action-plan-item.priority-medium .action-plan-badge {
+      background: rgba(234,179,8,.12);
+      color: var(--risk-med);
+    }
+
+    .action-plan-item.priority-low .action-plan-badge {
+      background: rgba(34,197,94,.12);
+      color: var(--risk-low);
+    }
+
+    .action-plan-item.verification-required {
+      border-left: 3px solid #a78bfa;
+    }
+
+    .action-plan-item.verification-required .action-plan-badge {
+      background: rgba(167,139,250,.12);
+      color: #a78bfa;
+    }
+
+    .action-plan-empty {
+      padding: 18px;
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      color: var(--text-dim);
+      font-size: 12px;
+    }
+
+    .action-plan-loading {
+      color: var(--text-dim);
+      font-size: 12px;
+      padding: 12px 0;
+    }
+
+    @media (max-width: 700px) {
+      .action-plan-item {
+        grid-template-columns: 32px 1fr;
+      }
+
+      .action-plan-badge {
+        grid-column: 2;
+        justify-self: start;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1614,6 +1794,10 @@
       <button class="nav-item" onclick="focusSection('highRiskAlert')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
         <span>Critical Alerts</span>
+      </button>
+      <button class="nav-item" onclick="focusSection('developerActionPlan')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <span>Developer Action Plan</span>
       </button>
       <button class="nav-item" onclick="focusSection('blastRadiusSection')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="12" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 11l8-4M8 13l8 4"/></svg>
@@ -1821,6 +2005,40 @@
               <span id="breakdownMeta">7 DIMENSIONS</span>
             </div>
             <div class="breakdown-grid" id="breakdownGrid"></div>
+          </div>
+
+          <!-- Developer Action Plan -->
+          <div class="dashboard-section developer-action-plan" id="developerActionPlan">
+            <div class="section-title-bar">
+              <h3>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2">
+                  <path d="M9 11l3 3L22 4"/>
+                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                </svg>
+                Developer Action Plan
+              </h3>
+              <span class="section-tag" id="actionPlanMeta">
+                ACTIONABLE INSIGHTS
+              </span>
+            </div>
+
+            <div class="developer-action-intro">
+              <div class="developer-action-icon">→</div>
+              <div>
+                <strong>What should I do next?</strong>
+                <p>
+                  Follow these steps before merging. They are generated from the
+                  current change, impact evidence, risk analysis and test recommendations.
+                </p>
+              </div>
+            </div>
+
+            <div class="action-plan-list" id="developerActionPlanList">
+              <div class="action-plan-loading">
+                Analyze a change to generate developer actions.
+              </div>
+            </div>
           </div>
 
           <div class="report-main-grid">
@@ -2157,6 +2375,279 @@ function downloadReportJson() {
   dlAnchor.click();
 }
 
+function renderDeveloperActionPlan(data) {
+  const container = $('developerActionPlanList');
+  const meta = $('actionPlanMeta');
+
+  if (!container) return;
+
+  const risk = data.risk || {};
+  const report = data.report || {};
+
+  const actions = [];
+
+  /*
+   * ---------------------------------------------------------
+   * 1. Risk-based action
+   * ---------------------------------------------------------
+   */
+
+  const riskBand = String(
+    risk.risk_band || 'UNKNOWN'
+  ).toUpperCase();
+
+  const riskScore = Number(risk.risk_score || 0);
+
+  if (riskBand === 'CRITICAL') {
+    actions.push({
+      priority: 'critical',
+      badge: 'DO FIRST',
+      title: 'Review the highest-risk change before merging',
+      description:
+        'This change has a critical impact score. Review the affected code and verify the dependent behavior before approving the merge.'
+    });
+  } else if (riskBand === 'HIGH') {
+    actions.push({
+      priority: 'high',
+      badge: 'HIGH PRIORITY',
+      title: 'Review the affected dependency chain',
+      description:
+        'This change has a high impact score. Check the changed code and the downstream components identified by the impact analysis.'
+    });
+  } else if (riskBand === 'MEDIUM') {
+    actions.push({
+      priority: 'medium',
+      badge: 'REVIEW',
+      title: 'Review the affected areas',
+      description:
+        'The change has moderate impact. Review the affected components and run the recommended tests before merging.'
+    });
+  } else if (riskBand !== 'UNKNOWN') {
+    actions.push({
+      priority: 'low',
+      badge: 'NORMAL',
+      title: 'Complete the recommended checks',
+      description:
+        'The current impact appears manageable. Follow the targeted test recommendations before merging.'
+    });
+  }
+
+  /*
+   * ---------------------------------------------------------
+   * 2. Changed files
+   * ---------------------------------------------------------
+   */
+
+  const changedFiles = Array.isArray(data.changed_files)
+    ? data.changed_files
+    : [];
+
+  if (changedFiles.length) {
+    const visibleFiles = changedFiles.slice(0, 4);
+
+    actions.push({
+      priority: 'medium',
+      badge: 'REVIEW',
+      title: 'Review the files that changed',
+      description:
+        `Start with ${visibleFiles.join(', ')} and check whether the implementation still matches the intended behavior.` +
+        (changedFiles.length > 4
+          ? ` ${changedFiles.length - 4} more changed file(s) are included in the analysis.`
+          : ''),
+      source: `${changedFiles.length} changed file(s)`
+    });
+  }
+
+  /*
+   * ---------------------------------------------------------
+   * 3. Targeted tests
+   * ---------------------------------------------------------
+   */
+
+  const recommendations = Array.isArray(data.recommended_tests)
+    ? data.recommended_tests
+    : [];
+
+  const reportTests = Array.isArray(report.what_to_test)
+    ? report.what_to_test
+    : [];
+
+  const tests = recommendations.length
+    ? recommendations
+    : reportTests.map(t => ({
+        test_id: t.test,
+        priority: t.priority || 'recommended',
+        reason: t.reason || ''
+      }));
+
+  if (tests.length) {
+    const topTests = tests
+      .filter(t => t.test_id || t.test)
+      .slice(0, 3);
+
+    const testNames = topTests
+      .map(t => t.test_id || t.test)
+      .filter(Boolean);
+
+    actions.push({
+      priority: 'high',
+      badge: 'TEST',
+      title: 'Run the targeted tests',
+      description:
+        testNames.length
+          ? `Start with ${testNames.join(', ')}. These tests were selected because they are relevant to the affected code.`
+          : 'Run the targeted tests identified by the analysis.',
+      source: 'Targeted test recommendations'
+    });
+  } else {
+    actions.push({
+      priority: 'medium',
+      badge: 'TEST',
+      title: 'Add or run coverage for the changed behavior',
+      description:
+        'No targeted tests were identified for this change. Verify the changed behavior directly and add coverage if the affected path is not already tested.'
+    });
+  }
+
+  /*
+   * ---------------------------------------------------------
+   * 4. Graph evidence quality
+   * ---------------------------------------------------------
+   */
+
+  const graphQuality = String(
+    data.graph_quality ||
+    data.graph_evidence_quality ||
+    risk.graph_quality ||
+    'unknown'
+  ).toLowerCase();
+
+  if (
+    graphQuality === 'partial' ||
+    graphQuality === 'unavailable'
+  ) {
+    actions.push({
+      priority: 'critical',
+      badge: 'VERIFY',
+      title: 'Verify the impact directly in source code',
+      description:
+        graphQuality === 'partial'
+          ? 'Entire Graph analysis is incomplete for this repository. Treat downstream relationships as possible rather than confirmed, and verify the affected callers in the source and tests.'
+          : 'Graph evidence is unavailable. Do not assume the dependency relationships are complete; verify the affected behavior directly in the source and tests.',
+      source: `Graph evidence: ${graphQuality}`
+    });
+  }
+
+  /*
+   * ---------------------------------------------------------
+   * 5. Candidate missed risks
+   * ---------------------------------------------------------
+   */
+
+  const missedRisks = Array.isArray(data.candidate_missed_risks)
+    ? data.candidate_missed_risks
+    : [];
+
+  if (missedRisks.length) {
+    const topMiss = missedRisks
+      .slice()
+      .sort(
+        (a, b) =>
+          Number(b.missed_risk_score || 0) -
+          Number(a.missed_risk_score || 0)
+      )
+      .slice(0, 2);
+
+    topMiss.forEach(m => {
+      const entity = m.entity_id || m.concern || 'affected area';
+
+      actions.push({
+        priority:
+          Number(m.missed_risk_score || 0) >= 80
+            ? 'high'
+            : 'medium',
+        badge: 'CHECK',
+        title: `Check ${entity}`,
+        description:
+          m.reason ||
+          'The analysis identified this as an area that may need additional verification.',
+        source: m.supporting_checkpoint_id
+          ? `Historical checkpoint: ${m.supporting_checkpoint_id}`
+          : 'Candidate missed-risk analysis'
+      });
+    });
+  }
+
+  /*
+   * ---------------------------------------------------------
+   * 6. Final merge step
+   * ---------------------------------------------------------
+   */
+
+  actions.push({
+    priority: 'low',
+    badge: 'FINAL',
+    title: 'Re-run the analysis before merging',
+    description:
+      'After making any fixes, run Stellar again and confirm that the affected areas, risk level and verification requirements are understood before merging.'
+  });
+
+  /*
+   * ---------------------------------------------------------
+   * Render
+   * ---------------------------------------------------------
+   */
+
+  if (meta) {
+    meta.textContent = `${actions.length} ACTION${actions.length === 1 ? '' : 'S'}`;
+  }
+
+  container.innerHTML = actions
+    .map((action, index) => {
+      const priority = String(
+        action.priority || 'medium'
+      ).toLowerCase();
+
+      const verificationClass =
+        action.badge === 'VERIFY'
+          ? ' verification-required'
+          : '';
+
+      return `
+        <div class="action-plan-item priority-${esc(priority)}${verificationClass}">
+          <div class="action-plan-number">
+            ${index + 1}
+          </div>
+
+          <div class="action-plan-content">
+            <div class="action-plan-title">
+              ${esc(action.title)}
+            </div>
+
+            <div class="action-plan-description">
+              ${esc(action.description)}
+            </div>
+
+            ${
+              action.source
+                ? `
+                  <div class="action-plan-source">
+                    Evidence: ${esc(action.source)}
+                  </div>
+                `
+                : ''
+            }
+          </div>
+
+          <span class="action-plan-badge">
+            ${esc(action.badge)}
+          </span>
+        </div>
+      `;
+    })
+    .join('');
+}
+
 function renderReport(data) {
   $('errorBanner').style.display = 'none';
   $('emptyState').style.display = 'none';
@@ -2382,6 +2873,9 @@ function renderReport(data) {
   }
 
   if ($('footerMeta')) $('footerMeta').textContent = `Engine: ${esc(report.engine || 'stellar')} · Plane: ${esc(data.data_plane || 'local')}`;
+
+  /* Generate simple developer instructions from actual analysis evidence */
+  renderDeveloperActionPlan(data);
 }
 
 loadEngineStatus();
