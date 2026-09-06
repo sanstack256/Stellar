@@ -88,7 +88,7 @@
         </div>
 
         <div class="hero-graph-canvas" id="heroCanvas">
-          <svg class="hero-graph-svg" id="heroSvg" viewBox="0 0 1040 390">
+          <svg class="hero-graph-svg" id="heroSvg">
             <defs>
               <marker id="arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
                 <path d="M 0 1 L 10 5 L 0 9 z" fill="#344054"/>
@@ -107,26 +107,26 @@
               </marker>
             </defs>
 
-            <path d="M 213 134 L 254 134" class="graph-edge active-origin" marker-end="url(#arrow-active)"/>
-            <path d="M 474 120 C 502 120, 508 77, 535 77" class="graph-edge" marker-end="url(#arrow)"/>
-            <path d="M 740 77 L 800 77" class="graph-edge" marker-end="url(#arrow)"/>
-            <path d="M 474 150 C 504 150, 508 234, 535 234" class="graph-edge active-danger" marker-end="url(#arrow-impact)"/>
-            <path d="M 755 234 L 800 234" class="graph-edge active-verify" marker-end="url(#arrow-test)"/>
-            <path d="M 364 172 L 364 256" class="graph-edge active-evidence" marker-end="url(#arrow-evidence)"/>
+            <path id="edgeSourceToMod" d="M 213 130 L 254 128" class="graph-edge active-origin" marker-end="url(#arrow-active)"/>
+            <path id="edgeModToCaller" d="M 474 114 C 504 114, 504 74, 535 74" class="graph-edge" marker-end="url(#arrow)"/>
+            <path id="edgeCallerToTrans" d="M 740 74 L 800 74" class="graph-edge" marker-end="url(#arrow)"/>
+            <path id="edgeModToImpact" d="M 474 142 C 504 142, 504 228, 535 228" class="graph-edge active-danger" marker-end="url(#arrow-impact)"/>
+            <path id="edgeImpactToTest" d="M 755 228 L 800 228" class="graph-edge active-verify" marker-end="url(#arrow-test)"/>
+            <path id="edgeModToEvid" d="M 364 160 L 364 256" class="graph-edge active-evidence" marker-end="url(#arrow-evidence)"/>
 
             <circle r="3.5" class="graph-signal-dot">
-              <animateMotion dur="4.2s" repeatCount="indefinite" path="M 213 134 L 254 134 L 474 150 C 504 150, 508 234, 535 234 L 755 234 L 800 234"/>
+              <animateMotion id="signalDotMotion" dur="4.2s" repeatCount="indefinite" path="M 213 130 L 254 128 L 474 142 C 504 142, 504 228, 535 228 L 755 228 L 800 228"/>
             </circle>
           </svg>
 
-          <div class="graph-node node-source-origin node-s2" style="top:102px; left:28px; width:185px;" onmouseenter="showTooltip('payments/service.py', 'Source file containing core payment orchestration logic.', 'SOURCE FILE', 'neutral')" onmouseleave="resetTooltip()">
+          <div class="graph-node node-source-origin node-s2" id="nodeSource" style="top:102px; left:28px; width:185px;" onmouseenter="showTooltip('payments/service.py', 'Source file containing core payment orchestration logic.', 'SOURCE FILE', 'neutral')" onmouseleave="resetTooltip()">
             <div class="node-tag-row">
               <span class="node-tag">SOURCE FILE</span>
             </div>
             <span class="node-name">payments/service.py</span>
           </div>
 
-          <div class="graph-node node-anchor-root node-s1" style="top:96px; left:254px; width:220px;" onmouseenter="showTooltip('validate(payment)', 'Modified entity: checks 3DS authentication and amount rules. Blast radius: 3 callers, 1 critical downstream path.', 'MODIFIED ENTITY', 'indigo')" onmouseleave="resetTooltip()">
+          <div class="graph-node node-anchor-root node-s1" id="nodeModified" style="top:96px; left:254px; width:220px;" onmouseenter="showTooltip('validate(payment)', 'Modified entity: checks 3DS authentication and amount rules. Blast radius: 3 callers, 1 critical downstream path.', 'MODIFIED ENTITY', 'indigo')" onmouseleave="resetTooltip()">
             <div class="node-tag-row">
               <span class="node-tag">MODIFIED ENTITY</span>
               <span class="badge" style="background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.4); color:#818CF8; font-size:9px; padding:1px 5px; border-radius:4px;">ORIGIN</span>
@@ -134,7 +134,7 @@
             <span class="node-name">validate(payment)</span>
           </div>
 
-          <div class="graph-node node-caller-tier node-s2" style="top:46px; left:535px; width:205px;" onmouseenter="showTooltip('authorize(payment)', 'Direct caller: executes authorization transactions via gateway.', 'DIRECT CALLER', 'amber')" onmouseleave="resetTooltip()">
+          <div class="graph-node node-caller-tier node-s2" id="nodeCaller" style="top:46px; left:535px; width:205px;" onmouseenter="showTooltip('authorize(payment)', 'Direct caller: executes authorization transactions via gateway.', 'DIRECT CALLER', 'amber')" onmouseleave="resetTooltip()">
             <div class="node-tag-row">
               <span class="node-tag">DIRECT CALLER</span>
               <span class="badge" style="background:rgba(251,191,36,0.12); border:1px solid rgba(251,191,36,0.3); color:#FBBF24; font-size:9px; padding:1px 5px; border-radius:4px;">CALLER</span>
@@ -142,7 +142,7 @@
             <span class="node-name">authorize(payment)</span>
           </div>
 
-          <div class="graph-node node-impact-danger node-s3" style="top:198px; left:535px; width:220px;" onmouseenter="showTooltip('process_refund(id)', 'Critical caller: relies on validate() reject logic during reversals. High regression risk.', 'CRITICAL IMPACT', 'red')" onmouseleave="resetTooltip()">
+          <div class="graph-node node-impact-danger node-s3" id="nodeImpact" style="top:198px; left:535px; width:220px;" onmouseenter="showTooltip('process_refund(id)', 'Critical caller: relies on validate() reject logic during reversals. High regression risk.', 'CRITICAL IMPACT', 'red')" onmouseleave="resetTooltip()">
             <div class="node-tag-row">
               <span class="node-tag">CRITICAL IMPACT</span>
               <span class="badge" style="background:rgba(248,113,113,0.15); border:1px solid rgba(248,113,113,0.4); color:#F87171; font-size:9px; padding:1px 5px; border-radius:4px;">HIGH RISK</span>
@@ -150,14 +150,14 @@
             <span class="node-name">process_refund(id)</span>
           </div>
 
-          <div class="graph-node node-transitive-consumer node-s5" style="top:46px; left:800px; width:195px;" onmouseenter="showTooltip('CheckoutController', 'Transitive consumer: web tier endpoint handling cart conversions.', 'TRANSITIVE DEPTH 2', 'neutral')" onmouseleave="resetTooltip()">
+          <div class="graph-node node-transitive-consumer node-s5" id="nodeTransitive" style="top:46px; left:800px; width:195px;" onmouseenter="showTooltip('CheckoutController', 'Transitive consumer: web tier endpoint handling cart conversions.', 'TRANSITIVE DEPTH 2', 'neutral')" onmouseleave="resetTooltip()">
             <div class="node-tag-row">
               <span class="node-tag">TRANSITIVE DEPTH 2</span>
             </div>
             <span class="node-name">CheckoutController</span>
           </div>
 
-          <div class="graph-node node-test-dest node-s4" style="top:198px; left:800px; width:200px;" onmouseenter="showTooltip('test_refund.py', 'Targeted test: 79% token &amp; caller proximity score. Recommended execution target.', 'TARGET TEST', 'green')" onmouseleave="resetTooltip()">
+          <div class="graph-node node-test-dest node-s4" id="nodeTest" style="top:198px; left:800px; width:200px;" onmouseenter="showTooltip('test_refund.py', 'Targeted test: 79% token &amp; caller proximity score. Recommended execution target.', 'TARGET TEST', 'green')" onmouseleave="resetTooltip()">
             <div class="node-tag-row">
               <span class="node-tag">TARGET TEST</span>
               <span class="badge" style="background:rgba(52,211,153,0.15); border:1px solid rgba(52,211,153,0.4); color:#34D399; font-size:9px; padding:1px 5px; border-radius:4px;">VERIFIED</span>
@@ -165,7 +165,7 @@
             <span class="node-name">test_refund.py</span>
           </div>
 
-          <div class="graph-node node-evidence-anchor node-s5" style="top:256px; left:254px; width:220px;" onmouseenter="showTooltip('checkpoint: hist_b2', 'Historical evidence: refund failures tied to validation rejection.', 'INCIDENT ANCHOR', 'cyan')" onmouseleave="resetTooltip()">
+          <div class="graph-node node-evidence-anchor node-s5" id="nodeEvidence" style="top:256px; left:254px; width:220px;" onmouseenter="showTooltip('checkpoint: hist_b2', 'Historical evidence: refund failures tied to validation rejection.', 'INCIDENT ANCHOR', 'cyan')" onmouseleave="resetTooltip()">
             <div class="node-tag-row">
               <span class="node-tag">INCIDENT ANCHOR</span>
               <span class="badge" style="background:rgba(34,211,238,0.15); border:1px solid rgba(34,211,238,0.4); color:#22D3EE; font-size:9px; padding:1px 5px; border-radius:4px;">EVIDENCE</span>
@@ -856,6 +856,63 @@ function resetTooltip() {
     tBadge.className = 'dock-badge active-indigo';
   }
 }
+
+function updateGraphEdges() {
+  const nSource = $('nodeSource');
+  const nMod = $('nodeModified');
+  const nCaller = $('nodeCaller');
+  const nImpact = $('nodeImpact');
+  const nTrans = $('nodeTransitive');
+  const nTest = $('nodeTest');
+  const nEvid = $('nodeEvidence');
+
+  if (!nSource || !nMod || !nCaller || !nImpact || !nTrans || !nTest || !nEvid) return;
+
+  const pSourceOut = { x: nSource.offsetLeft + nSource.offsetWidth, y: Math.round(nSource.offsetTop + nSource.offsetHeight / 2) };
+  const pModIn = { x: nMod.offsetLeft, y: Math.round(nMod.offsetTop + nMod.offsetHeight / 2) };
+
+  const pModOutTop = { x: nMod.offsetLeft + nMod.offsetWidth, y: Math.round(nMod.offsetTop + 18) };
+  const pModOutBot = { x: nMod.offsetLeft + nMod.offsetWidth, y: Math.round(nMod.offsetTop + nMod.offsetHeight - 18) };
+  const pModBottom = { x: Math.round(nMod.offsetLeft + nMod.offsetWidth / 2), y: nMod.offsetTop + nMod.offsetHeight };
+
+  const pCallerIn = { x: nCaller.offsetLeft, y: Math.round(nCaller.offsetTop + nCaller.offsetHeight / 2) };
+  const pCallerOut = { x: nCaller.offsetLeft + nCaller.offsetWidth, y: Math.round(nCaller.offsetTop + nCaller.offsetHeight / 2) };
+
+  const pTransIn = { x: nTrans.offsetLeft, y: Math.round(nTrans.offsetTop + nTrans.offsetHeight / 2) };
+
+  const pImpactIn = { x: nImpact.offsetLeft, y: Math.round(nImpact.offsetTop + nImpact.offsetHeight / 2) };
+  const pImpactOut = { x: nImpact.offsetLeft + nImpact.offsetWidth, y: Math.round(nImpact.offsetTop + nImpact.offsetHeight / 2) };
+
+  const pTestIn = { x: nTest.offsetLeft, y: Math.round(nTest.offsetTop + nTest.offsetHeight / 2) };
+
+  const pEvidTop = { x: Math.round(nEvid.offsetLeft + nEvid.offsetWidth / 2), y: nEvid.offsetTop };
+
+  const setD = (id, d) => {
+    const el = $(id);
+    if (el) el.setAttribute('d', d);
+  };
+
+  const c1x = Math.round((pModOutTop.x + pCallerIn.x) / 2);
+  const c2x = Math.round((pModOutBot.x + pImpactIn.x) / 2);
+
+  setD('edgeSourceToMod', `M ${pSourceOut.x} ${pSourceOut.y} L ${pModIn.x} ${pModIn.y}`);
+  setD('edgeModToCaller', `M ${pModOutTop.x} ${pModOutTop.y} C ${c1x} ${pModOutTop.y}, ${c1x} ${pCallerIn.y}, ${pCallerIn.x} ${pCallerIn.y}`);
+  setD('edgeCallerToTrans', `M ${pCallerOut.x} ${pCallerOut.y} L ${pTransIn.x} ${pTransIn.y}`);
+  setD('edgeModToImpact', `M ${pModOutBot.x} ${pModOutBot.y} C ${c2x} ${pModOutBot.y}, ${c2x} ${pImpactIn.y}, ${pImpactIn.x} ${pImpactIn.y}`);
+  setD('edgeImpactToTest', `M ${pImpactOut.x} ${pImpactOut.y} L ${pTestIn.x} ${pTestIn.y}`);
+  setD('edgeModToEvid', `M ${pModBottom.x} ${pModBottom.y} L ${pEvidTop.x} ${pEvidTop.y}`);
+
+  const anim = $('signalDotMotion');
+  if (anim) {
+    anim.setAttribute('path', `M ${pSourceOut.x} ${pSourceOut.y} L ${pModIn.x} ${pModIn.y} L ${pModOutBot.x} ${pModOutBot.y} C ${c2x} ${pModOutBot.y}, ${c2x} ${pImpactIn.y}, ${pImpactIn.x} ${pImpactIn.y} L ${pImpactOut.x} ${pImpactOut.y} L ${pTestIn.x} ${pTestIn.y}`);
+  }
+}
+
+window.addEventListener('load', updateGraphEdges);
+window.addEventListener('resize', updateGraphEdges);
+if (document.fonts) document.fonts.ready.then(updateGraphEdges);
+setTimeout(updateGraphEdges, 50);
+setTimeout(updateGraphEdges, 250);
 
 function scrollToTop() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
