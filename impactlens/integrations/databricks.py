@@ -86,7 +86,8 @@ class DatabricksStore:
             cur.execute(f"INSERT INTO {p}.knowledge_documents VALUES (?,?,?,?,?,?,?,current_timestamp())",(f"test:{repo}:{t['test_id']}",repo,commit,"test",None,t.get("description",t["test_id"]),json.dumps(t,default=str)))
         for eid,item in result.get("all_affected",{}).items():
             cur.execute(f"INSERT INTO {p}.gold_change_impact VALUES (?,?,?,?,?,?,?,?)",(repo,commit,item.get("changed_entity"),eid,item.get("depth",0),item.get("relationship"),item.get("source"),json.dumps(item,default=str)))
-            cur.execute(f"INSERT INTO {p}.knowledge_documents VALUES (?,?,?,?,?,?,?,current_timestamp())",(f"impact:{repo}:{commit}:{eid}",repo,commit,"impact",eid,f"Changed entity {item.get('changed_entity')} has a graph relationship to {eid} at depth {item.get('depth',0)}.",json.dumps(item,default=str)))
+            relation_kind = item.get("relationship_evidence", "confirmed_structural")
+            cur.execute(f"INSERT INTO {p}.knowledge_documents VALUES (?,?,?,?,?,?,?,current_timestamp())",(f"impact:{repo}:{commit}:{eid}",repo,commit,"impact",eid,f"Changed entity {item.get('changed_entity')} has {relation_kind} graph evidence to {eid} at depth {item.get('depth',0)}.",json.dumps(item,default=str)))
         cur.execute(f"INSERT INTO {p}.gold_risk_scores VALUES (?,?,?,?,?,?)",(repo,commit,risk["risk_score"],risk["risk_band"],json.dumps(risk["risk_reasons"]),json.dumps(risk["components"])))
         for rec in recommended_tests or []: cur.execute(f"INSERT INTO {p}.gold_test_recommendations VALUES (?,?,?,?,?,?)",(repo,commit,rec["test_id"],rec["priority"],rec["relevance_score"],rec["reason"]))
         for m in missed or []: cur.execute(f"INSERT INTO {p}.gold_missed_risks VALUES (?,?,?,?,?,?)",(repo,commit,m["entity_id"],m.get("missed_risk_score",0),m["reason"],m.get("supporting_checkpoint_id")))

@@ -22,20 +22,31 @@ def _slug(url: str) -> str:
     return f"{name}-{hashlib.sha256(url.encode()).hexdigest()[:10]}"
 
 def validate_url(url: str) -> str:
-    url=url.strip(); parsed=urlparse(url)
-    if not _URL_RE.match(url) or parsed.username or parsed.password: raise ValueError("repo_url must be HTTPS without embedded credentials")
+    url = url.strip()
+    if url.startswith("//"):
+        url = "https:" + url
+    elif not url.startswith("http://") and not url.startswith("https://") and "github.com" in url:
+        url = "https://" + url
+    parsed = urlparse(url)
+    if not _URL_RE.match(url) or parsed.username or parsed.password:
+        raise ValueError("repo_url must be HTTPS without embedded credentials")
     return url
 
 def clone(url: str, name: str|None=None) -> dict:
-    url=validate_url(url); base=root(); slug=re.sub(r"[^A-Za-z0-9._-]+","-",name or _slug(url))[:70]
-    dest=(base/slug).resolve(); dest.relative_to(base)
-    token=os.getenv("GIT_TOKEN","").strip()
-    if (dest/".git").exists():
-        subprocess.run(["git","-C",str(dest),"fetch","--all","--prune"],check=True,capture_output=True,text=True,timeout=180)
+    url = validate_url(url)
+    base = root()
+    slug = re.sub(r"[^A-Za-z0-9._-]+", "-", name or _slug(url))[:70]
+    dest = (base / slug).resolve()
+    dest.relative_to(base)
+    token = os.getenv("GIT_TOKEN", "").strip()
+    if (dest / ".git").exists():
+        subprocess.run(["git", "-C", str(dest), "fetch", "--all", "--prune"], check=True, capture_output=True, text=True, timeout=180)
     else:
-        cmd=["git"]
-        if token: cmd += ["-c",f"http.extraheader=Authorization: Bearer {token}"]
-        cmd += ["clone","--no-tags",url,str(dest)]
+        cmd = ["git"]
+        if token:
+            cmd += ["-c", f"http.extraheader=Authorization: Bearer {token}"]
+        cmd += ["clone", "--no-tags", url, str(dest)]
+        subprocess.run(cmd, check=True, capture_output=True, text=True, timeout=180)
     head = subprocess.run(["git", "-C", str(dest), "rev-parse", "HEAD"], check=True, capture_output=True, text=True, timeout=15).stdout.strip()
     path_str = str(dest.relative_to(BASE_DIR)) if dest.is_relative_to(BASE_DIR) else str(dest)
     return {"repo_path": path_str, "repo_name": dest.name, "head": head, "url": url}

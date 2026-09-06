@@ -8,6 +8,12 @@ import json, os, re, subprocess
 from typing import Any
 
 
+_VERIFICATION_PATH = (
+    "Inspect the changed source and each reported endpoint, then run the "
+    "relevant focused tests before treating the relationship as confirmed."
+)
+
+
 def _run(repo: str, args: list[str], timeout: int = 120) -> str:
     p=subprocess.run(["entire", *args], cwd=repo, capture_output=True, text=True, timeout=timeout)
     if p.returncode:
@@ -42,7 +48,37 @@ def graph_snapshot(repo: str) -> dict[str, Any]:
     for line in raw.splitlines():
         obj=_extract_json(line)
         if isinstance(obj,dict): rows.append(obj)
-    return {"raw":raw,"rows":rows}
+    return {"raw":raw,"rows":rows,"evidence_quality":graph_evidence_quality(rows)}
+
+
+def graph_evidence_quality(snapshot: dict[str, Any] | list[dict[str, Any]] | None) -> dict[str, Any]:
+    """Classify graph completeness without upgrading incomplete evidence."""
+    rows = snapshot.get("rows", []) if isinstance(snapshot, dict) else (snapshot or [])
+    summaries = [row for row in rows if isinstance(row, dict) and row.get("record_type") == "summary"]
+    summary = summaries[-1] if summaries else {}
+    partial_failures = summary.get("partial_failures", []) or []
+    completeness = summary.get("stats", {}).get("completeness_level", "")
+    state = "confirmed" if summaries and not partial_failures and completeness in {"complete", ""} else "partial"
+    return {
+        "state": state,
+        "source": "entire_graph",
+        "completeness_level": completeness or "unknown",
+        "partial_failures": partial_failures,
+        "verification_required": state != "confirmed",
+        "verification_path": _VERIFICATION_PATH if state != "confirmed" else "",
+    }
+
+
+def unavailable_graph_evidence(reason: Exception | str) -> dict[str, Any]:
+    return {
+        "state": "unavailable",
+        "source": "entire_graph",
+        "completeness_level": "unavailable",
+        "partial_failures": [],
+        "unavailable_reason": str(reason),
+        "verification_required": True,
+        "verification_path": _VERIFICATION_PATH,
+    }
 
 
 def _location(obj: dict[str, Any]):
@@ -55,8 +91,8 @@ def _location(obj: dict[str, Any]):
     return (str(file) if file else None, int(line) if str(line).isdigit() else None)
 
 
-def snapshot_entities(repo: str) -> list[dict[str, Any]]:
-    rows=graph_snapshot(repo)["rows"]
+def snapshot_entities(repo: str, snapshot: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+    rows=(snapshot or graph_snapshot(repo))["rows"]
     out=[]
     for row in rows:
         eid=row.get("entity_id") or row.get("id") or row.get("qualified_name") or row.get("name")
@@ -159,5 +195,70 @@ def checkpoint_for_commit(repo: str, commit: str) -> dict[str, Any]:
 
 
 def semantic_diff(repo: str, base: str, head: str) -> dict[str, Any]:
-    raw=_run(repo,["graph","diff","--repo",".",base,head])
-    return {"base":base,"head":head,"raw":raw,"parsed":_extract_json(raw)}
+    raw = _run(
+        repo,
+        [
+            "graph",
+            "diff",
+            "--repo",
+            ".",
+            "--base",
+            base,
+            "--head",
+            head,
+            "--json",
+        ],
+    )
+    parsed = _extract_json(raw)
+
+    # Semantic diff output can omit repository-wide parse failures.
+    # Reuse the Graph snapshot quality contract so incomplete Graph
+    # analysis is never upgraded to confirmed evidence.
+    snapshot = graph_snapshot(repo)
+    graph_quality = snapshot.get("evidence_quality", {})
+
+    diff_warnings = (
+        parsed.get("warnings", [])
+        if isinstance(parsed, dict)
+        else []
+    )
+
+    partial_failures = list(
+        graph_quality.get("partial_failures", []) or []
+    )
+    for warning in diff_warnings:
+        if warning not in partial_failures:
+            partial_failures.append(warning)
+
+    state = (
+        "unavailable"
+        if graph_quality.get("state") == "unavailable"
+        else "partial"
+        if graph_quality.get("state") != "confirmed" or partial_failures
+        else "confirmed"
+    )
+
+    quality = {
+        "state": state,
+        "source": "entire_graph_semantic_diff",
+        "completeness_level": graph_quality.get(
+            "completeness_level",
+            "unknown",
+        ),
+        "partial_failures": partial_failures,
+        "verification_required": state != "confirmed",
+        "verification_path": (
+            _VERIFICATION_PATH if state != "confirmed" else ""
+        ),
+    }
+
+    return {
+        "base": base,
+        "head": head,
+        "raw": raw,
+        "parsed": parsed,
+        "evidence_quality": quality,
+        # Entire documents dependent counts as heuristic even when
+        # the diff itself resolves.
+        "dependent_count_evidence": "heuristic",
+    }

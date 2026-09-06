@@ -82,12 +82,30 @@ def _resolve_repo_path(repo_path: str) -> Path:
     configured = os.getenv("STELLAR_REPO_ROOT", os.getenv("IMPACTLENS_REPO_ROOT", "")).strip()
     root = Path(configured).expanduser().resolve() if configured else BASE_DIR.resolve()
     raw = Path(repo_path).expanduser()
-    candidate = (raw if raw.is_absolute() else root / raw).resolve()
-    try:
-        candidate.relative_to(root)
-    except ValueError:
+
+    candidates: list[Path] = []
+    if raw.is_absolute():
+        candidates.append(raw.resolve())
+    else:
+        candidates.append((root / raw).resolve())
+        candidates.append((BASE_DIR / raw).resolve())
+        candidates.append((root / "impactlens" / raw).resolve())
+        candidates.append((BASE_DIR / "repos" / raw).resolve())
+        candidates.append((root / "repos" / raw).resolve())
+
+    chosen: Path | None = None
+    for c in candidates:
+        if c.exists():
+            chosen = c
+            break
+    if chosen is None:
+        chosen = candidates[0]
+
+    allowed_roots = [root, BASE_DIR.resolve()]
+    is_safe = any(chosen == r or r in chosen.parents for r in allowed_roots)
+    if not is_safe:
         raise HTTPException(400, "repo_path must stay within repository root")
-    return candidate
+    return chosen
 
 
 class CloneRequest(BaseModel):
@@ -218,4 +236,3 @@ if dashboard_dir.exists():
         return FileResponse(str(dashboard_dir / "dashboard.html"))
 
     app.mount("/", StaticFiles(directory=str(dashboard_dir), html=True), name="dashboard")
-

@@ -20,7 +20,7 @@ def jsonish(value):
         return str(value)
 
 
-def score_change(changed_entities, all_affected, covered_entities, historical_matches, checkpoint, graph=None):
+def score_change(changed_entities, all_affected, covered_entities, historical_matches, checkpoint, graph=None, graph_quality=None):
     n = len(all_affected)
     direct = sum(1 for v in all_affected.values() if v.get("depth") == 1)
     max_depth = max([int(v.get("depth", 0)) for v in all_affected.values()] or [0])
@@ -55,6 +55,8 @@ def score_change(changed_entities, all_affected, covered_entities, historical_ma
         reasons.append(f"{len(historical_matches)} historical checkpoint record(s) were retrieved")
     if intent:
         reasons.append("checkpoint intent is unavailable or incomplete")
+    if graph_quality and graph_quality.get("state") != "confirmed":
+        reasons.append("graph relationship evidence is partial or unavailable; source and test verification is required")
     return {
         "risk_score": score,
         "risk_band": _band(score),
@@ -68,4 +70,5 @@ def score_change(changed_entities, all_affected, covered_entities, historical_ma
             "dependency_depth": round(depth, 1),
         },
         "risk_reasons": reasons,
+        "graph_evidence_quality": graph_quality or {"state": "confirmed", "verification_required": False},
     }

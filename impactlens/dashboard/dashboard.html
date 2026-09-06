@@ -15,50 +15,50 @@
       --bg-card: rgba(14, 18, 28, 0.75);
       --bg-card-hover: rgba(20, 26, 40, 0.85);
       --bg-glass: rgba(10, 14, 22, 0.82);
-      
+
       --border-subtle: rgba(255, 255, 255, 0.08);
       --border-light: rgba(255, 255, 255, 0.14);
       --border-glow: rgba(56, 189, 248, 0.35);
-      
+
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
       --text-dim: #64748b;
-      
+
       --stellar-cyan: #38bdf8;
       --stellar-indigo: #6366f1;
       --stellar-violet: #8b5cf6;
       --stellar-rose: #f43f5e;
       --stellar-amber: #f59e0b;
       --stellar-emerald: #10b981;
-      
+
       --brand-gradient: linear-gradient(135deg, #38bdf8 0%, #6366f1 50%, #ec4899 100%);
       --brand-glow: rgba(56, 189, 248, 0.25);
-      
+
       --risk-low: #10b981;
       --risk-low-bg: rgba(16, 185, 129, 0.1);
       --risk-low-border: rgba(16, 185, 129, 0.35);
       --risk-low-glow: rgba(16, 185, 129, 0.25);
-      
+
       --risk-med: #f59e0b;
       --risk-med-bg: rgba(245, 158, 11, 0.12);
       --risk-med-border: rgba(245, 158, 11, 0.38);
       --risk-med-glow: rgba(245, 158, 11, 0.25);
-      
+
       --risk-high: #f97316;
       --risk-high-bg: rgba(249, 115, 22, 0.15);
       --risk-high-border: rgba(249, 115, 22, 0.45);
       --risk-high-glow: rgba(249, 115, 22, 0.35);
-      
+
       --risk-crit: #ef4444;
       --risk-crit-bg: rgba(239, 68, 68, 0.18);
       --risk-crit-border: rgba(239, 68, 68, 0.55);
       --risk-crit-glow: rgba(239, 68, 68, 0.4);
-      
+
       --radius-sm: 8px;
       --radius-md: 12px;
       --radius-lg: 16px;
       --radius-xl: 22px;
-      
+
       --shadow-sm: 0 4px 14px rgba(0, 0, 0, 0.35);
       --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.6);
       --shadow-cyan: 0 0 30px rgba(56, 189, 248, 0.2);
@@ -76,7 +76,7 @@
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       min-height: 100vh;
       overflow-x: hidden;
-      background-image: 
+      background-image:
         radial-gradient(1000px 600px at 80% -5%, rgba(99, 102, 241, 0.12), transparent 70%),
         radial-gradient(900px 500px at 15% 15%, rgba(56, 189, 248, 0.08), transparent 65%),
         radial-gradient(1100px 700px at 50% 100%, rgba(139, 92, 246, 0.08), transparent 70%),
@@ -1583,6 +1583,170 @@
       gap: 10px;
       margin-top: 8px;
     }
+
+    /* =========================================================
+       DEVELOPER ACTION PLAN
+       ========================================================= */
+
+    .developer-action-plan {
+      margin-top: 20px;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      background: var(--bg-card);
+      padding: 20px;
+    }
+
+    .developer-action-intro {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin: 0 0 16px;
+      padding: 16px;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      background: var(--bg-surface);
+    }
+
+    .developer-action-icon {
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--stellar-cyan);
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .developer-action-intro strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+      color: var(--text-main);
+    }
+
+    .developer-action-intro p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .action-plan-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .action-plan-item {
+      display: grid;
+      grid-template-columns: 38px 1fr auto;
+      gap: 12px;
+      align-items: start;
+      padding: 14px;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      background: var(--bg-surface);
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .action-plan-item:hover {
+      border-color: var(--border-light);
+      background: var(--bg-card-hover);
+    }
+
+    .action-plan-number {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.07);
+      color: var(--text-main);
+    }
+
+    .action-plan-content {
+      min-width: 0;
+    }
+
+    .action-plan-title {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: var(--text-main);
+    }
+
+    .action-plan-description {
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .action-plan-source {
+      margin-top: 7px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      word-break: break-word;
+    }
+
+    .action-plan-badge {
+      align-self: start;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+    }
+
+    .action-plan-item.priority-critical {
+      border-color: var(--risk-crit-border);
+      background: var(--risk-crit-bg);
+    }
+
+    .action-plan-item.priority-critical .action-plan-badge {
+      background: var(--risk-crit);
+      color: #fff;
+    }
+
+    .action-plan-item.priority-high {
+      border-color: var(--risk-high-border);
+      background: var(--risk-high-bg);
+    }
+
+    .action-plan-item.priority-high .action-plan-badge {
+      background: var(--risk-high);
+      color: #fff;
+    }
+
+    .action-plan-item.priority-medium {
+      border-color: var(--risk-med-border);
+    }
+
+    .action-plan-item.priority-medium .action-plan-badge {
+      background: var(--risk-med-bg);
+      color: var(--risk-med);
+      border: 1px solid var(--risk-med-border);
+    }
+
+    .action-plan-item.verification-required {
+      border-color: rgba(56, 189, 248, 0.4);
+    }
+
+    .action-plan-item.verification-required .action-plan-badge {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--stellar-cyan);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
   </style>
 </head>
 <body>
@@ -1615,7 +1779,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
         <span>Critical Alerts</span>
       </button>
-      <button class="nav-item" onclick="focusSection('testPlanSection')">
+      <button class="nav-item" onclick="focusSection('developerActionPlan')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
         <span>Developer Action Plan</span>
       </button>
@@ -1833,6 +1997,24 @@
 
           <div class="report-main-grid">
             <div class="report-column">
+              <div class="dashboard-section developer-action-plan" id="developerActionPlan">
+                <div class="section-title-bar">
+                  <h3>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+                    Developer Action Plan
+                  </h3>
+                  <span class="section-tag" id="actionPlanMeta">EVIDENCE-BASED</span>
+                </div>
+                <div class="developer-action-intro">
+                  <div class="developer-action-icon">✓</div>
+                  <div>
+                    <strong>Deterministic Step-by-Step Guidance</strong>
+                    <p>Prioritized developer actions computed directly from Git diff, dependency blast radius, coverage gaps, and evidence verification requirements.</p>
+                  </div>
+                </div>
+                <div class="action-plan-list" id="developerActionPlanList"></div>
+              </div>
+
               <div class="dashboard-section" id="blastRadiusSection">
                 <div class="section-title-bar">
                   <h3>
@@ -2040,7 +2222,7 @@ async function runPreset(match) {
   $('errorBanner').style.display = 'none';
   $('status').textContent = `Loading demo commit for "${match}" from sample_repo…`;
   $('statusbar').classList.add('busy');
-  
+
   try {
     const cs = await getCommits('sample_repo');
     const c = cs.find(v => v.subject && v.subject.toLowerCase().includes(match.toLowerCase()));
@@ -2162,6 +2344,153 @@ function downloadReportJson() {
   const sha = (currentReportData.commit && currentReportData.commit.sha) ? currentReportData.commit.sha.slice(0, 8) : 'report';
   dlAnchor.setAttribute("download", `stellar_report_${sha}.json`);
   dlAnchor.click();
+}
+
+function renderDeveloperActionPlan(data) {
+  const container = $('developerActionPlanList');
+  const meta = $('actionPlanMeta');
+
+  if (!container) return;
+
+  const risk = data.risk || {};
+  const report = data.report || {};
+  const actions = [];
+
+  const riskBand = String(risk.risk_band || 'UNKNOWN').toUpperCase();
+  const riskScore = Number(risk.risk_score || 0);
+
+  if (riskBand === 'CRITICAL') {
+    actions.push({
+      priority: 'critical',
+      badge: 'DO FIRST',
+      title: 'Review the highest-risk change before merging',
+      description: 'This change has a critical impact score. Review the affected code and verify the dependent behavior before approving the merge.'
+    });
+  } else if (riskBand === 'HIGH') {
+    actions.push({
+      priority: 'high',
+      badge: 'HIGH PRIORITY',
+      title: 'Review the affected dependency chain',
+      description: 'This change has a high impact score. Check the changed code and the downstream components identified by the impact analysis.'
+    });
+  } else if (riskBand === 'MEDIUM') {
+    actions.push({
+      priority: 'medium',
+      badge: 'REVIEW',
+      title: 'Review the affected areas',
+      description: 'The change has moderate impact. Review the affected components and run the recommended tests before merging.'
+    });
+  } else if (riskBand !== 'UNKNOWN') {
+    actions.push({
+      priority: 'low',
+      badge: 'NORMAL',
+      title: 'Complete the recommended checks',
+      description: 'The current impact appears manageable. Follow the targeted test recommendations before merging.'
+    });
+  }
+
+  const changedFiles = Array.isArray(data.changed_files) ? data.changed_files : [];
+  if (changedFiles.length) {
+    const visibleFiles = changedFiles.slice(0, 4);
+    actions.push({
+      priority: 'medium',
+      badge: 'REVIEW',
+      title: 'Review the files that changed',
+      description: `Start with ${visibleFiles.join(', ')} and check whether the implementation still matches the intended behavior.` +
+        (changedFiles.length > 4 ? ` ${changedFiles.length - 4} more changed file(s) are included in the analysis.` : ''),
+      source: `${changedFiles.length} changed file(s)`
+    });
+  }
+
+  const recommendations = Array.isArray(data.recommended_tests) ? data.recommended_tests : [];
+  const reportTests = Array.isArray(report.what_to_test) ? report.what_to_test : [];
+  const tests = recommendations.length ? recommendations : reportTests.map(t => ({
+    test_id: t.test,
+    priority: t.priority || 'recommended',
+    reason: t.reason || ''
+  }));
+
+  if (tests.length) {
+    const topTests = tests.filter(t => t.test_id || t.test).slice(0, 3);
+    const testNames = topTests.map(t => t.test_id || t.test).filter(Boolean);
+    actions.push({
+      priority: 'high',
+      badge: 'TEST',
+      title: 'Run the targeted tests',
+      description: testNames.length
+        ? `Start with ${testNames.join(', ')}. These tests were selected because they are relevant to the affected code.`
+        : 'Run the targeted tests identified by the analysis.',
+      source: 'Targeted test recommendations'
+    });
+  } else {
+    actions.push({
+      priority: 'medium',
+      badge: 'TEST',
+      title: 'Add or run coverage for the changed behavior',
+      description: 'No targeted tests were identified for this change. Verify the changed behavior directly and add coverage if the affected path is not already tested.'
+    });
+  }
+
+  const graphQuality = String(
+    data.graph_quality ||
+    data.graph_evidence_quality ||
+    risk.graph_quality ||
+    'unknown'
+  ).toLowerCase();
+
+  if (graphQuality === 'partial' || graphQuality === 'unavailable') {
+    actions.push({
+      priority: 'critical',
+      badge: 'VERIFY',
+      title: 'Verify the impact directly in source code',
+      description: graphQuality === 'partial'
+        ? 'Entire Graph analysis is incomplete for this repository. Treat downstream relationships as possible rather than confirmed, and verify the affected callers in the source and tests.'
+        : 'Graph evidence is unavailable. Do not assume the dependency relationships are complete; verify the affected behavior directly in the source and tests.',
+      source: `Graph evidence: ${graphQuality}`
+    });
+  }
+
+  const missedRisks = Array.isArray(data.candidate_missed_risks) ? data.candidate_missed_risks : [];
+  if (missedRisks.length) {
+    const topMiss = missedRisks.slice().sort((a, b) => Number(b.missed_risk_score || 0) - Number(a.missed_risk_score || 0)).slice(0, 2);
+    topMiss.forEach(m => {
+      const entity = m.entity_id || m.concern || 'affected area';
+      actions.push({
+        priority: Number(m.missed_risk_score || 0) >= 80 ? 'high' : 'medium',
+        badge: 'CHECK',
+        title: `Check ${entity}`,
+        description: m.reason || 'The analysis identified this as an area that may need additional verification.',
+        source: m.supporting_checkpoint_id ? `Historical checkpoint: ${m.supporting_checkpoint_id}` : 'Candidate missed-risk analysis'
+      });
+    });
+  }
+
+  actions.push({
+    priority: 'low',
+    badge: 'FINAL',
+    title: 'Re-run the analysis before merging',
+    description: 'After making any fixes, run Stellar again and confirm that the affected areas, risk level and verification requirements are understood before merging.'
+  });
+
+  if (meta) {
+    meta.textContent = `${actions.length} ACTION${actions.length === 1 ? '' : 'S'}`;
+  }
+
+  container.innerHTML = actions.map((action, index) => {
+    const priority = String(action.priority || 'medium').toLowerCase();
+    const verificationClass = action.badge === 'VERIFY' ? ' verification-required' : '';
+    return `
+      <div class="action-plan-item priority-${esc(priority)}${verificationClass}">
+        <div class="action-plan-number">${index + 1}</div>
+        <div class="action-plan-content">
+          <div class="action-plan-title">${esc(action.title)}</div>
+          <div class="action-plan-description">${esc(action.description)}</div>
+          ${action.source ? `<div class="action-plan-source">Evidence: ${esc(action.source)}</div>` : ''}
+        </div>
+        <span class="action-plan-badge">${esc(action.badge)}</span>
+      </div>
+    `;
+  }).join('');
 }
 
 function renderReport(data) {
@@ -2378,6 +2707,9 @@ function renderReport(data) {
   }
 
   if ($('footerMeta')) $('footerMeta').textContent = `Engine: ${esc(report.engine || 'stellar')} · Plane: ${esc(data.data_plane || 'local')}`;
+
+  /* Generate simple developer instructions from actual analysis evidence */
+  renderDeveloperActionPlan(data);
 }
 
 loadEngineStatus();

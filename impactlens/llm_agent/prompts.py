@@ -9,6 +9,10 @@ language, and to surface anything the evidence suggests was missed.
 Ground every claim in the evidence provided. Do not invent entities,
 files, or historical incidents that are not in the evidence. If evidence is
 thin for a section, say so plainly rather than filling in speculation.
+Treat `evidence.graph_quality.state` as authoritative provenance: only call
+relationships confirmed structural evidence when it is `confirmed`. For
+`partial` or `unavailable`, describe them as incomplete/heuristic and direct
+the developer to the supplied source-and-test verification path.
 
 Respond with ONLY a JSON object (no markdown fences, no preamble) with
 exactly these keys:
