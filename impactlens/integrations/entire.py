@@ -126,11 +126,36 @@ def checkpoint_for_commit(repo: str, commit: str) -> dict[str, Any]:
         raw=_run(repo,["explain","--commit",commit])
         data=_extract_json(raw)
         if isinstance(data,dict):
-            data["raw"]=raw; data.setdefault("commit_id",commit); return data
-        return {"commit_id":commit,"raw":raw,"checkpoint_summary":raw[:2000],"agent_reasoning":raw,"prompt":""}
-    except Exception:
-        from entire_sim import checkpoint_sim
-        return checkpoint_sim.load_checkpoint_for_commit(repo, commit)
+            data["raw"] = raw
+            data.setdefault("commit_id", commit)
+            data["evidence_source"] = "entire_cli"
+            data["verification_state"] = "verified"
+            return data
+        return {
+            "commit_id": commit,
+            "raw": raw,
+            "checkpoint_summary": raw[:2000],
+            "agent_reasoning": raw,
+            "prompt": "",
+            "evidence_source": "entire_cli",
+            "verification_state": "verified",
+        }
+    except Exception as exc:
+        # Checkpoint content must come from `entire explain`; do not substitute
+        # commit-message-derived simulation data when that command is unavailable.
+        return {
+            "commit_id": commit,
+            "session_id": None,
+            "prompt": "",
+            "agent_reasoning": "",
+            "checkpoint_summary": "Entire checkpoint evidence is unavailable.",
+            "author": "",
+            "timestamp": "",
+            "raw": "",
+            "evidence_source": "entire_cli",
+            "verification_state": "partial",
+            "unavailable_reason": str(exc),
+        }
 
 
 def semantic_diff(repo: str, base: str, head: str) -> dict[str, Any]:

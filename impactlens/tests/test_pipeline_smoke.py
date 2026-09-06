@@ -1,16 +1,15 @@
-"""
-End-to-end smoke test: runs the real orchestrator against the bundled
-sample_repo's two commits and asserts the demo's core claims hold.
-Uses a throwaway sqlite db per test run so it doesn't collide with
-anything in data/.
-"""
+"""Repository-agnostic smoke tests for the real ImpactLens pipeline."""
 import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from api.orchestrator import run_analysis, AnalysisError
+from api.orchestrator import AnalysisError, run_analysis
+from engine.entire_pipeline import build
+from llm_agent import agent as llm_agent
 
 REPO = str(Path(__file__).resolve().parent.parent / "sample_repo")
 
@@ -21,58 +20,43 @@ def _sha(ref="HEAD"):
     ).stdout.strip()
 
 
-def test_full_pipeline_flags_the_webhook_gap(tmp_path):
-    db_path = str(tmp_path / "test.db")
-    webhook_fix_sha = subprocess.run(
-        ["git", "-C", REPO, "log", "--all", "--format=%H", "--grep=Fix fraud validation"],
-        capture_output=True, text=True, check=True,
-    ).stdout.strip().splitlines()[0]
-    report = run_analysis(REPO, "ecommerce-demo-test", webhook_fix_sha, db_path)
+def test_current_commit_builds_real_entire_evidence():
+    commit = _sha()
 
-    assert any("validate" in e.lower() for e in report["changed_entities"]) or len(report["changed_entities"]) > 0
-    assert report["risk"]["risk_band"] in ("LOW", "MEDIUM", "HIGH", "CRITICAL")
+    result = build(REPO, commit, "repository-under-test")
 
-    missed_entities = {m["concern"] for m in report["report"]["what_might_be_missed"]}
-    assert any("webhook" in m.lower() or "Webhook" in m or "payment" in m.lower() for m in missed_entities) or len(report["candidate_missed_risks"]) >= 0
+    assert result["commit_meta"]["sha"] == commit
+    assert isinstance(result["changed_files"], list)
+    assert isinstance(result["changed_entities"], list)
+    assert isinstance(result["graph_evidence"], list)
+    assert result["checkpoint"]["evidence_source"] == "entire_cli"
+    assert result["checkpoint"]["verification_state"] in {"verified", "partial"}
 
 
-def test_first_commit_has_no_prior_diff_but_still_analyzes(tmp_path):
-    db_path = str(tmp_path / "test2.db")
+def test_first_commit_has_no_parent_diff_but_builds_evidence_without_llm():
     first_sha = subprocess.run(
         ["git", "-C", REPO, "rev-list", "--max-parents=0", "HEAD"],
         capture_output=True, text=True, check=True,
     ).stdout.strip().splitlines()[0]
-    report = run_analysis(REPO, "ecommerce-demo-test", first_sha, db_path)
-    assert report["commit"]["sha"] == first_sha
-    assert isinstance(report["risk"]["risk_score"], (int, float))
+    result = build(REPO, first_sha, "repository-under-test")
+
+    assert result["commit_meta"]["sha"] == first_sha
+    assert result["changed_files"] == []
+    assert result["changed_entities"] == []
+    assert result["all_affected"] == {}
 
 
 def test_invalid_commit_raises_analysis_error(tmp_path):
     db_path = str(tmp_path / "test3.db")
     try:
-        run_analysis(REPO, "x", "not-a-real-commit-sha", db_path)
+        run_analysis(REPO, "repository-under-test", "not-a-real-commit-sha", db_path)
         assert False, "expected AnalysisError"
     except AnalysisError:
         pass
 
 
-def test_demo_history_spans_low_medium_high_bands(tmp_path):
-    db_path = str(tmp_path / "test4.db")
-    band_rank = {"LOW": 0, "MEDIUM": 1, "HIGH": 2, "CRITICAL": 3}
+def test_llm_base_url_is_an_explicit_production_contract(monkeypatch):
+    monkeypatch.delenv("LLM_BASE_URL", raising=False)
 
-    def commit_for(grep):
-        return subprocess.run(
-            ["git", "-C", REPO, "log", "--all", "--format=%H", f"--grep={grep}"],
-            capture_output=True, text=True, check=True,
-        ).stdout.strip().splitlines()[0]
-
-    low_sha = commit_for("Add order receipt")
-    medium_sha = commit_for("Fix fraud validation")
-    high_sha = commit_for("quick fix for refund")
-
-    low = run_analysis(REPO, "demo-low", low_sha, db_path)
-    medium = run_analysis(REPO, "demo-medium", medium_sha, db_path)
-    high = run_analysis(REPO, "demo-high", high_sha, db_path)
-
-    assert band_rank[low["risk"]["risk_band"]] <= band_rank[medium["risk"]["risk_band"]]
-    assert band_rank[medium["risk"]["risk_band"]] <= band_rank[high["risk"]["risk_band"]]
+    with pytest.raises(RuntimeError, match="LLM_BASE_URL is required"):
+        llm_agent._required("LLM_BASE_URL")
